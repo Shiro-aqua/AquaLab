@@ -1,6 +1,6 @@
 JavaScript
 
-const CACHE_NAME = 'aqualab-v1.1';
+const CACHE_NAME = 'aqualab-v1.2';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
