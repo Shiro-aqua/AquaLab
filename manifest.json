@@ -1,5 +1,5 @@
 {
-  "name": "AquaLab",
+  "name": "AquaLab Pro",
   "short_name": "AquaLab",
   "start_url": "./index.html",
   "display": "standalone",
@@ -10,7 +10,7 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2990/2990662.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
+}
