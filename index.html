@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -8,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>AquaLab - Kalkulator Akwarystyczny</title>
+<link rel="manifest" href="manifest.json">
+<title>AquaLab Pro - Kalkulator Akwarystyczny</title>
 <style>
   :root {
     --bg: #0f172a;
@@ -30,13 +30,13 @@
   header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); }
   header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #34d399; }
   header span { font-size: 0.78rem; color: var(--muted); }
-  .tabs { display: flex; gap: 8px; margin-bottom: 16px; background: var(--card); padding: 5px; border-radius: 12px; border: 1px solid var(--card-border); }
-  .tab-btn { flex: 1; padding: 10px 6px; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.85rem; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--card); padding: 5px; border-radius: 12px; border: 1px solid var(--card-border); }
+  .tab-btn { flex: 1; padding: 10px 4px; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
   .tab-btn.active { background: var(--accent); color: #052e16; }
   .panel { display: none; }
   .panel.active { display: block; }
   .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
-  .card-title { font-size: 0.9rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .card-title { font-size: 0.88rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .param-box { background: rgba(15, 23, 42, 0.65); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; }
   .param-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -59,14 +59,34 @@
   .diag-name { font-weight: 700; font-size: 0.88rem; }
   .diag-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
   .btn-main { width: 100%; padding: 13px; border: none; border-radius: 12px; background: var(--accent); color: #052e16; font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 6px; }
-  .btn-secondary { padding: 8px 12px; border: 1px solid var(--card-border); border-radius: 8px; background: #0f172a; color: var(--text); font-size: 0.78rem; cursor: pointer; }
+  .btn-secondary { padding: 7px 11px; border: 1px solid var(--card-border); border-radius: 8px; background: #0f172a; color: var(--text); font-size: 0.76rem; cursor: pointer; font-weight: 600; }
+  .btn-secondary.active-mode { border-color: var(--accent); color: var(--ok-text); background: rgba(16, 185, 129, 0.12); }
   .history-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
   .history-head { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
   .history-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.8rem; }
   .history-grid div strong { color: #38bdf8; }
   .note-input { width: 100%; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 8px; padding: 10px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px; }
+
+  /* WYKRESY */
+  .series-toggles { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+  .series-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--card-border); background: #0f172a; color: var(--muted); cursor: pointer; user-select: none; transition: 0.15s; }
+  .series-chip .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; opacity: 0.35; }
+  .series-chip.active { color: #fff; border-color: #64748b; background: rgba(30, 41, 59, 0.95); }
+  .series-chip.active .dot { opacity: 1; box-shadow: 0 0 6px currentColor; }
+  .chart-wrap { position: relative; width: 100%; background: #0b1120; border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; overflow: hidden; }
+  canvas#trendChart { width: 100%; height: 300px; display: block; touch-action: pan-y; }
+  .chart-tooltip { margin-top: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 12px; font-size: 0.8rem; }
+  .trend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+  .trend-box { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px 11px; display: flex; justify-content: space-between; align-items: center; }
+  .trend-name { font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .trend-delta { font-size: 0.8rem; font-weight: 800; }
+  .delta-up { color: #38bdf8; }
+  .delta-down { color: #fb923c; }
+  .delta-flat { color: var(--muted); }
+
   @media (max-width: 420px) {
     .param-grid { grid-template-columns: 1fr; }
+    .trend-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -74,7 +94,7 @@
 
 <header>
   <div>
-    <h1>🌿 AquaLab</h1>
+    <h1>🌿 AquaLab Pro</h1>
     <span>Kalkulator i dziennik akwarium roślinnego</span>
   </div>
   <button class="btn-secondary" onclick="resetDefaults()">Reset</button>
@@ -82,6 +102,7 @@
 
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('calc', this)">Kalkulator</button>
+  <button class="tab-btn" onclick="switchTab('chart', this)">Wykresy</button>
   <button class="tab-btn" onclick="switchTab('dose', this)">Dawkowanie</button>
   <button class="tab-btn" onclick="switchTab('hist', this)">Historia (<span id="histCount">0</span>)</button>
 </div>
@@ -228,7 +249,47 @@
   </div>
 </div>
 
-<!-- TAB 2: KALKULATOR KOREKTY NAWOŻENIA -->
+<!-- TAB 2: WYKRESY LINIOWE TRENDÓW -->
+<div id="tab-chart" class="panel">
+  <div class="card">
+    <div class="card-title">
+      <span>Wykres wzrostu i spadku parametrów</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-secondary active-mode" id="mode_raw" onclick="setChartMode('raw')">Wartości (mg/l)</button>
+        <button class="btn-secondary" id="mode_norm" onclick="setChartMode('norm')">Skala % (0-100%)</button>
+      </div>
+    </div>
+    <div style="font-size:0.76rem; color:var(--muted); margin-bottom:10px;">
+      Kliknij parametr poniżej, aby <strong>zaznaczyć lub odznaczyć</strong> go na wspólnym wykresie. Tryb <em>Skala %</em> ułatwia porównanie małego Fe (0.25) z dużym NO₃ (15) na jednym ekranie.
+    </div>
+
+    <!-- PRZYCISKI ZAZNACZANIA / ODZNACZANIA SERII -->
+    <div class="series-toggles" id="series_toggles"></div>
+
+    <div style="display:flex; gap:6px; margin-bottom:10px;">
+      <button class="btn-secondary" onclick="toggleAllSeries(true)">Zaznacz wszystkie</button>
+      <button class="btn-secondary" onclick="toggleAllSeries(false)">Tylko Makro + Fe</button>
+      <button class="btn-secondary" onclick="loadDemoHistory()" style="margin-left:auto;">Wgraj przykładowe 6 pomiarów</button>
+    </div>
+
+    <!-- PŁÓTNO WYKRESU -->
+    <div class="chart-wrap">
+      <canvas id="trendChart" width="540" height="300"></canvas>
+    </div>
+
+    <div class="chart-tooltip" id="chart_tooltip">
+      Dotknij dowolnego punktu na wykresie, aby sprawdzić dokładne wartości z danego dnia.
+    </div>
+
+    <!-- PODSUMOWANIE WZROSTU / SPADKU (OSTATNI POMIAR VS POPRZEDNI) -->
+    <div class="card-title" style="margin-top:16px; margin-bottom:6px;">
+      <span>Bilans zmian (Ostatni pomiar vs poprzedni)</span>
+    </div>
+    <div class="trend-grid" id="trend_deltas"></div>
+  </div>
+</div>
+
+<!-- TAB 3: KALKULATOR KOREKTY NAWOŻENIA -->
 <div id="tab-dose" class="panel">
   <div class="card">
     <div class="card-title">Ile brakuje do docelowych poziomów?</div>
@@ -254,7 +315,7 @@
   </div>
 </div>
 
-<!-- TAB 3: HISTORIA POMIARÓW -->
+<!-- TAB 4: HISTORIA POMIARÓW -->
 <div id="tab-hist" class="panel">
   <div class="card">
     <div class="card-title">
@@ -267,6 +328,21 @@
 
 <script>
 const state = { no3: 15, po4: 1.0, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0 };
+
+// Konfiguracja serii wykresu (Makro, Mikro i pozostałe wskaźniki)
+const SERIES_CONFIG = [
+  { key: 'no3', label: 'NO₃ (Makro)', unit: 'mg/l', color: '#38bdf8', active: true, maxRef: 30 },
+  { key: 'po4', label: 'PO₄ (Makro)', unit: 'mg/l', color: '#a855f7', active: true, maxRef: 2.5 },
+  { key: 'fe',  label: 'Fe (Mikro)',  unit: 'mg/l', color: '#f97316', active: true, maxRef: 0.6 },
+  { key: 'co2', label: 'CO₂',         unit: 'mg/l', color: '#10b981', active: false, maxRef: 40 },
+  { key: 'redfield', label: 'Redfield N:P', unit: ':1', color: '#eab308', active: false, maxRef: 25 },
+  { key: 'kh',  label: 'KH',          unit: '°dH',  color: '#ec4899', active: false, maxRef: 15 },
+  { key: 'gh',  label: 'GH',          unit: '°dH',  color: '#14b8a6', active: false, maxRef: 20 },
+  { key: 'ph',  label: 'pH',          unit: '',     color: '#f43f5e', active: false, maxRef: 8.0 }
+];
+
+let chartMode = 'raw'; // 'raw' lub 'norm'
+let selectedPointIdx = null;
 
 function sync(key, val) {
   const num = parseFloat(val);
@@ -414,15 +490,18 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
+  if (tab === 'chart') {
+    drawTrendChart();
+  }
 }
 
 function saveMeasurement() {
   const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
-  const co2 = (3 * state.kh * Math.pow(10, 7 - state.ph)).toFixed(1);
-  const redfield = state.po4 > 0 ? ((state.no3 * 0.2259) / (state.po4 * 0.3261)).toFixed(1) : '∞';
+  const co2 = parseFloat((3 * state.kh * Math.pow(10, 7 - state.ph)).toFixed(1));
+  const redfield = state.po4 > 0 ? parseFloat(((state.no3 * 0.2259) / (state.po4 * 0.3261)).toFixed(1)) : 0;
   const note = document.getElementById('note_input').value.trim();
   const now = new Date();
-  const dateStr = now.toLocaleDateString('pl-PL') + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
+  const dateStr = now.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit'}) + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
 
   hist.unshift({
     date: dateStr,
@@ -434,7 +513,8 @@ function saveMeasurement() {
   localStorage.setItem('aqualab_history', JSON.stringify(hist));
   document.getElementById('note_input').value = '';
   renderHistory();
-  alert('Pomiar został zapisany w pamięci telefonu!');
+  drawTrendChart();
+  alert('Pomiar został zapisany! Możesz zobaczyć zmianę w zakładce Wykresy.');
 }
 
 function renderHistory() {
@@ -470,12 +550,15 @@ function deleteEntry(idx) {
   hist.splice(idx, 1);
   localStorage.setItem('aqualab_history', JSON.stringify(hist));
   renderHistory();
+  drawTrendChart();
 }
 
 function clearHistory() {
   if (confirm('Czy na pewno wyczyścić całą historię pomiarów?')) {
     localStorage.removeItem('aqualab_history');
+    selectedPointIdx = null;
     renderHistory();
+    drawTrendChart();
   }
 }
 
@@ -484,7 +567,325 @@ function resetDefaults() {
   Object.keys(defs).forEach(k => sync(k, defs[k]));
 }
 
+// ================= WYKRES LINIOWY (MAKRO + MIKRO + INNE) =================
+
+function renderSeriesToggles() {
+  const wrap = document.getElementById('series_toggles');
+  wrap.innerHTML = SERIES_CONFIG.map((s, i) => `
+    <div class="series-chip ${s.active ? 'active' : ''}" onclick="toggleSeries(${i})">
+      <span class="dot" style="background:${s.color}; color:${s.color};"></span>
+      <span>${s.label}</span>
+    </div>
+  `).join('');
+}
+
+function toggleSeries(idx) {
+  SERIES_CONFIG[idx].active = !SERIES_CONFIG[idx].active;
+  renderSeriesToggles();
+  drawTrendChart();
+}
+
+function toggleAllSeries(allActive) {
+  SERIES_CONFIG.forEach(s => {
+    if (allActive) {
+      s.active = true;
+    } else {
+      s.active = ['no3', 'po4', 'fe'].includes(s.key);
+    }
+  });
+  renderSeriesToggles();
+  drawTrendChart();
+}
+
+function setChartMode(mode) {
+  chartMode = mode;
+  document.getElementById('mode_raw').classList.toggle('active-mode', mode === 'raw');
+  document.getElementById('mode_norm').classList.toggle('active-mode', mode === 'norm');
+  drawTrendChart();
+}
+
+function getChronologicalData() {
+  const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
+  // Odwracamy kolejność, żeby na wykresie czas płynął od lewej (najstarszy) do prawej (najnowszy)
+  return hist.slice().reverse();
+}
+
+let cachedChartPoints = []; // Do obsługi kliknięcia/dotyku na wykresie
+
+function drawTrendChart() {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const width = rect.width || 520;
+  const height = 300;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, width, height);
+
+  const data = getChronologicalData();
+  const activeSeries = SERIES_CONFIG.filter(s => s.active);
+
+  renderTrendDeltas(data);
+
+  if (data.length === 0) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Brak zapisanych pomiarów w historii.', width / 2, height / 2 - 10);
+    ctx.font = '12px sans-serif';
+    ctx.fillText('Zapisz pomiar w Kalkulatorze lub kliknij "Wgraj przykładowe 6 pomiarów".', width / 2, height / 2 + 14);
+    return;
+  }
+
+  if (activeSeries.length === 0) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Zaznacz przynajmniej jeden parametr powyżej, aby narysować wykres.', width / 2, height / 2);
+    return;
+  }
+
+  const padL = 42, padR = 18, padT = 22, padB = 38;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+
+  // Wyznaczenie skali Y
+  let minY = 0;
+  let maxY = 100;
+
+  if (chartMode === 'raw') {
+    let vals = [];
+    data.forEach(d => {
+      activeSeries.forEach(s => {
+        const v = parseFloat(d[s.key]);
+        if (!isNaN(v)) vals.push(v);
+      });
+    });
+    maxY = vals.length > 0 ? Math.max(...vals) * 1.15 : 10;
+    if (maxY === 0) maxY = 1;
+  }
+
+  // Siatka pozioma
+  const gridSteps = 4;
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+
+  for (let i = 0; i <= gridSteps; i++) {
+    const ratio = i / gridSteps;
+    const y = padT + plotH - ratio * plotH;
+    const val = minY + ratio * (maxY - minY);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(width - padR, y);
+    ctx.stroke();
+
+    const label = chartMode === 'norm' ? Math.round(val) + '%' : (maxY <= 5 ? val.toFixed(2) : val.toFixed(1));
+    ctx.fillText(label, padL - 6, y + 4);
+  }
+
+  // Współrzędne X dla punktów czasowych
+  const getX = (i) => data.length === 1 ? padL + plotW / 2 : padL + (i / (data.length - 1)) * plotW;
+
+  // Podświetlenie wybranego pomiaru (pionowa linia)
+  if (selectedPointIdx !== null && selectedPointIdx < data.length) {
+    const sx = getX(selectedPointIdx);
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(sx, padT);
+    ctx.lineTo(sx, padT + plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  cachedChartPoints = data.map((d, i) => ({ x: getX(i), idx: i, item: d }));
+
+  // Rysowanie linii dla każdej zaznaczonej serii
+  activeSeries.forEach(s => {
+    // Wyznaczenie max w danej serii dla trybu znormalizowanego %
+    let seriesMax = s.maxRef;
+    if (chartMode === 'norm') {
+      const sVals = data.map(d => parseFloat(d[s.key]) || 0);
+      seriesMax = Math.max(...sVals, 0.01) * 1.1;
+    }
+
+    const points = data.map((d, i) => {
+      const rawVal = parseFloat(d[s.key]) || 0;
+      const plotVal = chartMode === 'norm' ? (rawVal / seriesMax) * 100 : rawVal;
+      const x = getX(i);
+      const y = padT + plotH - ((plotVal - minY) / (maxY - minY)) * plotH;
+      return { x, y, rawVal };
+    });
+
+    // Linia
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+
+    // Punkty i wartości
+    points.forEach((p, i) => {
+      ctx.fillStyle = '#0b1120';
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, i === selectedPointIdx ? 5.5 : 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Etykieta wartości nad ostatnim punktem (lub wybranym)
+      if (i === data.length - 1 || i === selectedPointIdx) {
+        ctx.fillStyle = s.color;
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.rawVal, p.x, p.y - 8);
+      }
+    });
+  });
+
+  // Etykiety dat na osi X
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  const stepX = Math.max(1, Math.ceil(data.length / 6));
+  data.forEach((d, i) => {
+    if (i % stepX === 0 || i === data.length - 1) {
+      const shortDate = (d.date || '').split(' ')[0];
+      ctx.fillText(shortDate, getX(i), height - 12);
+    }
+  });
+}
+
+// Obsługa kliknięcia/dotyku na wykresie
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas) return;
+
+  const handlePointer = (e) => {
+    if (cachedChartPoints.length === 0) return;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const x = clientX - rect.left;
+
+    let closest = cachedChartPoints[0];
+    let minDist = Math.abs(x - closest.x);
+    cachedChartPoints.forEach(p => {
+      const dist = Math.abs(x - p.x);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = p;
+      }
+    });
+
+    selectedPointIdx = closest.idx;
+    drawTrendChart();
+
+    const d = closest.item;
+    const prev = closest.idx > 0 ? cachedChartPoints[closest.idx - 1].item : null;
+    const activeSeries = SERIES_CONFIG.filter(s => s.active);
+
+    const details = activeSeries.map(s => {
+      const currVal = parseFloat(d[s.key]) || 0;
+      let diffHtml = '';
+      if (prev) {
+        const prevVal = parseFloat(prev[s.key]) || 0;
+        const diff = currVal - prevVal;
+        const sign = diff > 0 ? '+' : '';
+        const col = diff > 0 ? '#38bdf8' : (diff < 0 ? '#fb923c' : '#94a3b8');
+        diffHtml = ` <span style="color:${col};">(${sign}${diff.toFixed(2)})</span>`;
+      }
+      return `<span style="margin-right:10px;"><strong style="color:${s.color};">${s.label.split(' ')[0]}:</strong> ${currVal}${s.unit}${diffHtml}</span>`;
+    }).join(' ');
+
+    document.getElementById('chart_tooltip').innerHTML = `
+      <div style="font-weight:700; margin-bottom:4px; color:#e2e8f0;">📅 Pomiar z dnia: ${d.date} ${d.note ? ' — <em>' + d.note + '</em>' : ''}</div>
+      <div style="line-height:1.6;">${details}</div>
+    `;
+  };
+
+  canvas.addEventListener('click', handlePointer);
+  canvas.addEventListener('touchstart', handlePointer, { passive: true });
+});
+
+function renderTrendDeltas(data) {
+  const container = document.getElementById('trend_deltas');
+  if (!container) return;
+
+  if (data.length < 2) {
+    container.innerHTML = `<div style="grid-column: span 2; color:var(--muted); font-size:0.78rem; padding:6px;">Zapisz co najmniej 2 pomiary, aby zobaczyć automatyczne wyliczenie wzrostu lub spadku każdego parametru.</div>`;
+    return;
+  }
+
+  const last = data[data.length - 1];
+  const prev = data[data.length - 2];
+
+  container.innerHTML = SERIES_CONFIG.map(s => {
+    const vLast = parseFloat(last[s.key]) || 0;
+    const vPrev = parseFloat(prev[s.key]) || 0;
+    const diff = vLast - vPrev;
+    let arrow = '▬';
+    let cls = 'delta-flat';
+    let sign = '';
+    if (diff > 0.001) { arrow = '▲ Wzrost'; cls = 'delta-up'; sign = '+'; }
+    else if (diff < -0.001) { arrow = '▼ Spadek'; cls = 'delta-down'; }
+
+    const formattedDiff = Math.abs(diff) < 0.001 ? '0.0' : sign + (s.key === 'fe' || s.key === 'po4' || s.key === 'ph' ? diff.toFixed(2) : diff.toFixed(1));
+
+    return `
+      <div class="trend-box">
+        <div class="trend-name">
+          <span style="width:8px; height:8px; border-radius:50%; background:${s.color}; display:inline-block;"></span>
+          <span>${s.label}</span>
+        </div>
+        <div class="trend-delta ${cls}">
+          ${arrow} ${formattedDiff} ${s.unit}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadDemoHistory() {
+  const demo = [
+    { date: '20.10 18:00', no3: 20.0, po4: 1.50, fe: 0.40, ph: 6.65, kh: 5.0, gh: 8.0, co2: 33.6, redfield: 9.2,  note: 'Po podmianie i dawce makro' },
+    { date: '17.10 19:15', no3: 12.0, po4: 0.80, fe: 0.15, ph: 6.75, kh: 5.0, gh: 8.0, co2: 26.7, redfield: 10.4, note: 'Przed podmianą (konsumpcja roślin)' },
+    { date: '14.10 18:30', no3: 16.0, po4: 1.10, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 10.1, note: 'Korekta Fe i PO4' },
+    { date: '11.10 20:00', no3: 18.0, po4: 0.60, fe: 0.10, ph: 6.70, kh: 5.5, gh: 8.5, co2: 32.9, redfield: 20.8, note: 'Spadek fosforu i żelaza' },
+    { date: '08.10 17:45', no3: 15.0, po4: 1.00, fe: 0.30, ph: 6.68, kh: 5.0, gh: 8.0, co2: 31.3, redfield: 10.4, note: 'Stabilnie po przycince' },
+    { date: '05.10 18:00', no3: 10.0, po4: 0.90, fe: 0.20, ph: 6.72, kh: 5.0, gh: 8.0, co2: 28.6, redfield: 7.7,  note: 'Start pomiarów' }
+  ];
+  localStorage.setItem('aqualab_history', JSON.stringify(demo));
+  selectedPointIdx = null;
+  renderHistory();
+  drawTrendChart();
+}
+
+// Rejestracja Service Workera dla PWA (działanie offline)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+window.addEventListener('resize', () => {
+  if (document.getElementById('tab-chart').classList.contains('active')) {
+    drawTrendChart();
+  }
+});
+
 window.onload = () => {
+  renderSeriesToggles();
   calculateAll();
   renderHistory();
 };
