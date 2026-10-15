@@ -1,6 +1,6 @@
 
 {
-  "name": "AquaLab Pro",
+  "name": "AquaLab",
   "short_name": "AquaLab",
   "start_url": "./index.html",
   "display": "standalone",
