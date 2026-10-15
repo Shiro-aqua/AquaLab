@@ -294,11 +294,22 @@
 <div id="tab-goals" class="panel">
   <div class="card">
     <div class="card-title">
-      <span>Własne wymagania i cele zbiornika</span>
-      <button class="btn-secondary" onclick="resetGoals()">Domyślne</button>
+      <span>Wybór stylu akwarium</span>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <button class="btn-secondary active-mode" id="btn_hightech" onclick="setAquariumMode('hightech')" style="flex:1; padding:10px;">⚡ High-Tech (z CO₂)</button>
+      <button class="btn-secondary" id="btn_lowtech" onclick="setAquariumMode('lowtech')" style="flex:1; padding:10px;">🌿 Low-Tech (bez CO₂)</button>
+    </div>
+    <div id="mode_info_text" style="font-size:0.76rem; color:#34d399; margin-bottom:14px; background:rgba(16,185,129,0.1); padding:8px; border-radius:8px;">
+      ⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.
+    </div>
+
+    <div class="card-title" style="margin-top:10px;">
+      <span>Własne zakresy docelowe</span>
+      <button class="btn-secondary" onclick="resetGoals()">Reset</button>
     </div>
     <div style="font-size:0.76rem; color:var(--muted); margin-bottom:12px;">
-      Ustaw własne zakresy docelowe dla swojego akwarium. Kalkulator i doradca będą oceniać parametry pod te kryteria.
+      Wartości optymalne podstawiają się automatycznie po wybraniu stylu. Możesz je w każdej chwili dostosować.
     </div>
     <div class="param-grid">
       <div class="param-box">
@@ -612,6 +623,56 @@ const defaultGoals = {
   np_min: 10, np_max: 22
 };
 
+
+const presetModes = {
+  hightech: {
+    no3_min: 10, no3_max: 25,
+    po4_min: 0.8, po4_max: 1.5,
+    fe_min: 0.1, fe_max: 0.4,
+    co2_min: 20, co2_max: 32,
+    ph_min: 6.4, ph_max: 7.0,
+    np_min: 10, np_max: 22
+  },
+  lowtech: {
+    no3_min: 5, no3_max: 15,
+    po4_min: 0.3, po4_max: 0.8,
+    fe_min: 0.05, fe_max: 0.2,
+    co2_min: 5, co2_max: 15,
+    ph_min: 6.8, ph_max: 7.6,
+    np_min: 10, np_max: 22
+  }
+};
+
+function setAquariumMode(modeName) {
+  const mode = presetModes[modeName];
+  if (!mode) return;
+  
+  document.getElementById('goal_no3_min').value = mode.no3_min;
+  document.getElementById('goal_no3_max').value = mode.no3_max;
+  document.getElementById('goal_po4_min').value = mode.po4_min;
+  document.getElementById('goal_po4_max').value = mode.po4_max;
+  document.getElementById('goal_fe_min').value = mode.fe_min;
+  document.getElementById('goal_fe_max').value = mode.fe_max;
+  document.getElementById('goal_co2_min').value = mode.co2_min;
+  document.getElementById('goal_co2_max').value = mode.co2_max;
+  document.getElementById('goal_ph_min').value = mode.ph_min;
+  document.getElementById('goal_ph_max').value = mode.ph_max;
+  document.getElementById('goal_np_min').value = mode.np_min;
+  document.getElementById('goal_np_max').value = mode.np_max;
+
+  saveGoals();
+  
+  document.getElementById('btn_hightech').classList.toggle('active-mode', modeName === 'hightech');
+  document.getElementById('btn_lowtech').classList.toggle('active-mode', modeName === 'lowtech');
+  
+  const infoBox = document.getElementById('mode_info_text');
+  if (modeName === 'hightech') {
+    infoBox.innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
+  } else {
+    infoBox.innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro, mniejsze ryzyko glonów.';
+  }
+}
+
 function getGoals() {
   try {
     const saved = localStorage.getItem('aqualab_goals');
@@ -649,6 +710,16 @@ function resetGoals() {
 
 function loadGoalsToInputs() {
   const g = getGoals();
+  if (g.co2_min >= 18) {
+    document.getElementById('btn_hightech').classList.add('active-mode');
+    document.getElementById('btn_lowtech').classList.remove('active-mode');
+    document.getElementById('mode_info_text').innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
+  } else {
+    document.getElementById('btn_lowtech').classList.add('active-mode');
+    document.getElementById('btn_hightech').classList.remove('active-mode');
+    document.getElementById('mode_info_text').innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro.';
+  }
+  const g = getGoals();
   document.getElementById('goal_no3_min').value = g.no3_min;
   document.getElementById('goal_no3_max').value = g.no3_max;
   document.getElementById('goal_po4_min').value = g.po4_min;
@@ -662,6 +733,7 @@ function loadGoalsToInputs() {
   document.getElementById('goal_np_min').value = g.np_min;
   document.getElementById('goal_np_max').value = g.np_max;
 }
+
 
 function updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3) {
   const g = getGoals();
@@ -708,13 +780,23 @@ function updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3) {
   }
   panels.push({ title: 'Współpraca Fosforu z Żelazem', badge: feBadge, status: feStatus, desc: feText });
 
-  // 4. Minerały (GH-KH)
-  let ghStatus = 'ok', ghBadge = 'Minerały OK', ghText = `Zapas twardości niewęglanowej (GH-KH = ${nkh.toFixed(1)} °dH) zapewnia stabilne warunki dla liści i łodyg.`;
-  if (nkh < 1.0) {
-    ghStatus = 'warn'; ghBadge = 'Mało Ca/Mg'; ghText = `Bardzo niska twardość niewęglanowa (${nkh.toFixed(1)} °dH). Możliwy niedobór wapnia i magnezu.`;
+  // 4. KH, GH i ich stosunek (Nowość z pełną diagnostyką!)
+  const khPct = gh > 0 ? Math.round((kh / gh) * 100) : 0;
+  let ghStatus = 'ok', ghBadge = 'Stosunek KH/GH Idealny', ghText = `Twardość węglanowa (KH: ${kh} °dH) stanowi ${khPct}% twardości ogólnej (GH: ${gh} °dH). Twardość stała niewęglanowa wynosi ${nkh.toFixed(1)} °dH. Oznacza to zdrową proporcję minerałów (wapń/magnez) dla roślin i ryb.`;
+  
+  if (kh > gh) {
+    ghStatus = 'err'; ghBadge = 'Nieprawidłowość: KH > GH'; ghText = `Uwaga! Twardość węglanowa (${kh} °dH) jest wyższa niż ogólna (${gh} °dH). Oznacza to występowanie węglanów sodu lub potasu w wodzie (tzw. woda sodowa). Może to blokować przyswajanie wapnia przez rośliny.`;
     issuesCount++;
+  } else if (gh === 0) {
+    ghStatus = 'warn'; ghBadge = 'Brak minerałów (GH = 0)'; ghText = `Woda całkowicie miękka / RO bez mineralizacji. Rośliny i ryby szybko ucierpią z powodu braku mikroelementów (Ca i Mg). Konieczne użycie mineralizatora GH+.`;
+    issuesCount++;
+  } else if (khPct < 30) {
+    ghStatus = 'warn'; ghBadge = 'Niskie KH względem GH'; ghText = `Niskie KH (${kh} °dH przy GH ${gh} °dH, tj. ${khPct}%). Bufor pH jest słaby, ryzyko nagłych wahań kwasowości (tzw. crash pH).`;
+    issuesCount++;
+  } else if (khPct > 85) {
+    ghStatus.status = 'warn'; ghBadge = 'Wysokie KH względem GH'; ghText = `Wysoki udział KH w GH (${khPct}%). Woda mocno zbuforowana, co może utrudniać obniżanie pH za pomocą CO₂.`;
   }
-  panels.push({ title: 'Twardość i Minerały (Ca/Mg)', badge: ghBadge, status: ghStatus, desc: ghText });
+  panels.push({ title: 'Twardość i Stosunek KH do GH', badge: ghBadge, status: ghStatus, desc: ghText });
 
   container.innerHTML = panels.map(p => `
     <div class="diag-item">
@@ -735,6 +817,7 @@ function updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3) {
     }
   }
 }
+
 
 function resetDefaults() {
   const defs = { no3: 15, po4: 1.0, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0 };
