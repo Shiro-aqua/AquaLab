@@ -105,7 +105,6 @@
   <button class="tab-btn active" onclick="switchTab('calc', this)">Kalkulator</button>
   <button class="tab-btn" onclick="switchTab('chart', this)">Wykresy</button>
   <button class="tab-btn" onclick="switchTab('dose', this)">Dawkowanie</button>
-  <button class="tab-btn" onclick="switchTab('goals', this)">Cele</button>
   <button class="tab-btn" onclick="switchTab('hist', this)">Historia (<span id="histCount">0</span>)</button>
 </div>
 
@@ -209,18 +208,45 @@
     </div>
   </div>
 
-  <!-- LUDZKI PANEL DORADCY AKWARYSTYCZNEGO -->
+  <!-- SZCZEGÓŁOWA TABELA DIAGNOSTYCZNA -->
   <div class="card">
-    <div class="card-title">
-      <span>Doradca Akwarystyczny (Diagnoza)</span>
-      <span class="badge ok" id="advisor_general_badge">Akwarium stabilne</span>
-    </div>
-    <div class="diag-list" id="advisor_panels">
-      <!-- Generowane dynamicznie -->
+    <div class="card-title">Pełna diagnostyka wyliczeń</div>
+    <div class="diag-list">
+      <div class="diag-item">
+        <div class="diag-top">
+          <span class="diag-name">Czysty Azot (N-NO₃) i Fosfor (P-PO₄)</span>
+          <span class="badge ok" id="out_np_pure">N: 3.39 | P: 0.33 mg/l</span>
+        </div>
+        <div class="diag-desc" id="desc_redfield">Stosunek atomowy w normie. Niskie ryzyko zarówno sinic, jak i zielenic punktowych (GSA).</div>
+      </div>
+
+      <div class="diag-item">
+        <div class="diag-top">
+          <span class="diag-name">Twardość stała niewęglanowa (GH - KH)</span>
+          <span class="badge ok" id="out_nkh">3.0 °dH (KH = 63% GH)</span>
+        </div>
+        <div class="diag-desc" id="desc_nkh">Prawidłowy zapas siarczanów i chlorków wapnia oraz magnezu.</div>
+      </div>
+
+      <div class="diag-item">
+        <div class="diag-top">
+          <span class="diag-name">Relacja Fosfor – Żelazo (PO₄ : Fe)</span>
+          <span class="badge ok" id="out_fe_status">Brak wytrącania</span>
+        </div>
+        <div class="diag-desc" id="desc_fe">Żelazo w bezpiecznej proporcji do fosforanów. Niskie ryzyko krasnorostów (BBA).</div>
+      </div>
+
+      <div class="diag-item">
+        <div class="diag-top">
+          <span class="diag-name">Bazowa mineralizacja z twardości (CaCO₃)</span>
+          <span class="badge ok" id="out_tds">~143 mg/l CaCO₃</span>
+        </div>
+        <div class="diag-desc">Szacunkowy ekwiwalent węglanu wapnia wynikający z twardości ogólnej GH.</div>
+      </div>
     </div>
 
-    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. po podmianie 30%, przycięta Rotala)..." style="margin-top:14px;">
-    <button class="btn-main" onclick="saveMeasurement()">💾 Zapisz pomiar w historii</button>
+    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. po podmianie 30%, przycięta Rotala)...">
+    <button class="btn-main" onclick="saveMeasurement()">💾 Zapisz pomiar</button>
   </div>
 </div>
 
@@ -290,85 +316,12 @@
   </div>
 </div>
 
-<!-- TAB: CELE / WYMAGANIA -->
-<div id="tab-goals" class="panel">
-  <div class="card">
-    <div class="card-title">
-      <span>Wybór stylu akwarium</span>
-    </div>
-    <div style="display:flex; gap:8px; margin-bottom:10px;">
-      <button class="btn-secondary active-mode" id="btn_hightech" onclick="setAquariumMode('hightech')" style="flex:1; padding:10px;">⚡ High-Tech (z CO₂)</button>
-      <button class="btn-secondary" id="btn_lowtech" onclick="setAquariumMode('lowtech')" style="flex:1; padding:10px;">🌿 Low-Tech (bez CO₂)</button>
-    </div>
-    <div id="mode_info_text" style="font-size:0.76rem; color:#34d399; margin-bottom:14px; background:rgba(16,185,129,0.1); padding:8px; border-radius:8px;">
-      ⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.
-    </div>
-
-    <div class="card-title" style="margin-top:10px;">
-      <span>Własne zakresy docelowe</span>
-      <button class="btn-secondary" onclick="resetGoals()">Reset</button>
-    </div>
-    <div style="font-size:0.76rem; color:var(--muted); margin-bottom:12px;">
-      Wartości optymalne podstawiają się automatycznie po wybraniu stylu. Możesz je w każdej chwili dostosować.
-    </div>
-    <div class="param-grid">
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">NO₃ Min - Max</span><span class="param-unit">mg/l</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_no3_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
-          <input type="number" id="goal_no3_max" class="param-input" style="width:100%;" step="1" value="25" onchange="saveGoals()">
-        </div>
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">PO₄ Min - Max</span><span class="param-unit">mg/l</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_po4_min" class="param-input" style="width:100%;" step="0.1" value="0.8" onchange="saveGoals()">
-          <input type="number" id="goal_po4_max" class="param-input" style="width:100%;" step="0.1" value="1.5" onchange="saveGoals()">
-        </div>
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Fe Min - Max</span><span class="param-unit">mg/l</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_fe_min" class="param-input" style="width:100%;" step="0.05" value="0.1" onchange="saveGoals()">
-          <input type="number" id="goal_fe_max" class="param-input" style="width:100%;" step="0.05" value="0.4" onchange="saveGoals()">
-        </div>
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">CO₂ Min - Max</span><span class="param-unit">mg/l</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_co2_min" class="param-input" style="width:100%;" step="1" value="20" onchange="saveGoals()">
-          <input type="number" id="goal_co2_max" class="param-input" style="width:100%;" step="1" value="32" onchange="saveGoals()">
-        </div>
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">pH Min - Max</span><span class="param-unit">pH</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_ph_min" class="param-input" style="width:100%;" step="0.05" value="6.4" onchange="saveGoals()">
-          <input type="number" id="goal_ph_max" class="param-input" style="width:100%;" step="0.05" value="7.0" onchange="saveGoals()">
-        </div>
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Redfield N:P</span><span class="param-unit">zakres</span></div>
-        <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_np_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
-          <input type="number" id="goal_np_max" class="param-input" style="width:100%;" step="1" value="22" onchange="saveGoals()">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- TAB 4: HISTORIA POMIARÓW -->
 <div id="tab-hist" class="panel">
   <div class="card">
     <div class="card-title">
       <span>Zapisane pomiary (Pamięć telefonu)</span>
-      <div style="display:flex; gap:6px;">
-        <button class="btn-secondary" onclick="exportBackup()" title="Pobierz kopię zapasową JSON">Eksport</button>
-        <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Wgraj kopię zapasową JSON">Import</button>
-        <button class="btn-secondary" onclick="clearHistory()" style="color:#f87171;">Wyczyść</button>
-      </div>
-      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
+      <button class="btn-secondary" onclick="clearHistory()">Wyczyść</button>
     </div>
     <div id="history_container"></div>
   </div>
@@ -491,7 +444,6 @@ function calculateAll() {
   document.getElementById('out_tds').textContent = `~${caco3} mg/l CaCO₃`;
 
   calcDosing();
-  updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3);
 }
 
 function calcDosing() {
@@ -610,219 +562,6 @@ function clearHistory() {
     drawTrendChart();
   }
 }
-
-
-// ================= CELE I WYMAGANIA UŻYTKOWNIKA =================
-
-const defaultGoals = {
-  no3_min: 10, no3_max: 25,
-  po4_min: 0.8, po4_max: 1.5,
-  fe_min: 0.1, fe_max: 0.4,
-  co2_min: 20, co2_max: 32,
-  ph_min: 6.4, ph_max: 7.0,
-  np_min: 10, np_max: 22
-};
-
-
-const presetModes = {
-  hightech: {
-    no3_min: 10, no3_max: 25,
-    po4_min: 0.8, po4_max: 1.5,
-    fe_min: 0.1, fe_max: 0.4,
-    co2_min: 20, co2_max: 32,
-    ph_min: 6.4, ph_max: 7.0,
-    np_min: 10, np_max: 22
-  },
-  lowtech: {
-    no3_min: 5, no3_max: 15,
-    po4_min: 0.3, po4_max: 0.8,
-    fe_min: 0.05, fe_max: 0.2,
-    co2_min: 5, co2_max: 15,
-    ph_min: 6.8, ph_max: 7.6,
-    np_min: 10, np_max: 22
-  }
-};
-
-function setAquariumMode(modeName) {
-  const mode = presetModes[modeName];
-  if (!mode) return;
-  
-  document.getElementById('goal_no3_min').value = mode.no3_min;
-  document.getElementById('goal_no3_max').value = mode.no3_max;
-  document.getElementById('goal_po4_min').value = mode.po4_min;
-  document.getElementById('goal_po4_max').value = mode.po4_max;
-  document.getElementById('goal_fe_min').value = mode.fe_min;
-  document.getElementById('goal_fe_max').value = mode.fe_max;
-  document.getElementById('goal_co2_min').value = mode.co2_min;
-  document.getElementById('goal_co2_max').value = mode.co2_max;
-  document.getElementById('goal_ph_min').value = mode.ph_min;
-  document.getElementById('goal_ph_max').value = mode.ph_max;
-  document.getElementById('goal_np_min').value = mode.np_min;
-  document.getElementById('goal_np_max').value = mode.np_max;
-
-  saveGoals();
-  
-  document.getElementById('btn_hightech').classList.toggle('active-mode', modeName === 'hightech');
-  document.getElementById('btn_lowtech').classList.toggle('active-mode', modeName === 'lowtech');
-  
-  const infoBox = document.getElementById('mode_info_text');
-  if (modeName === 'hightech') {
-    infoBox.innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
-  } else {
-    infoBox.innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro, mniejsze ryzyko glonów.';
-  }
-}
-
-function getGoals() {
-  try {
-    const saved = localStorage.getItem('aqualab_goals');
-    return saved ? {...defaultGoals, ...JSON.parse(saved)} : defaultGoals;
-  } catch(e) {
-    return defaultGoals;
-  }
-}
-
-function saveGoals() {
-  const goals = {
-    no3_min: parseFloat(document.getElementById('goal_no3_min').value) || 10,
-    no3_max: parseFloat(document.getElementById('goal_no3_max').value) || 25,
-    po4_min: parseFloat(document.getElementById('goal_po4_min').value) || 0.8,
-    po4_max: parseFloat(document.getElementById('goal_po4_max').value) || 1.5,
-    fe_min: parseFloat(document.getElementById('goal_fe_min').value) || 0.1,
-    fe_max: parseFloat(document.getElementById('goal_fe_max').value) || 0.4,
-    co2_min: parseFloat(document.getElementById('goal_co2_min').value) || 20,
-    co2_max: parseFloat(document.getElementById('goal_co2_max').value) || 32,
-    ph_min: parseFloat(document.getElementById('goal_ph_min').value) || 6.4,
-    ph_max: parseFloat(document.getElementById('goal_ph_max').value) || 7.0,
-    np_min: parseFloat(document.getElementById('goal_np_min').value) || 10,
-    np_max: parseFloat(document.getElementById('goal_np_max').value) || 22
-  };
-  localStorage.setItem('aqualab_goals', JSON.stringify(goals));
-  calculateAll();
-}
-
-function resetGoals() {
-  localStorage.removeItem('aqualab_goals');
-  loadGoalsToInputs();
-  calculateAll();
-  alert('Przywrócono domyślne wymagania!');
-}
-
-function loadGoalsToInputs() {
-  const g = getGoals();
-  if (document.getElementById('btn_hightech') && document.getElementById('btn_lowtech')) {
-    if (g.co2_min >= 18) {
-      document.getElementById('btn_hightech').classList.add('active-mode');
-      document.getElementById('btn_lowtech').classList.remove('active-mode');
-      const info = document.getElementById('mode_info_text');
-      if(info) info.innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
-    } else {
-      document.getElementById('btn_lowtech').classList.add('active-mode');
-      document.getElementById('btn_hightech').classList.remove('active-mode');
-      const info = document.getElementById('mode_info_text');
-      if(info) info.innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro.';
-    }
-  }
-  if(document.getElementById('goal_no3_min')) {
-    document.getElementById('goal_no3_min').value = g.no3_min;
-    document.getElementById('goal_no3_max').value = g.no3_max;
-    document.getElementById('goal_po4_min').value = g.po4_min;
-    document.getElementById('goal_po4_max').value = g.po4_max;
-    document.getElementById('goal_fe_min').value = g.fe_min;
-    document.getElementById('goal_fe_max').value = g.fe_max;
-    document.getElementById('goal_co2_min').value = g.co2_min;
-    document.getElementById('goal_co2_max').value = g.co2_max;
-    document.getElementById('goal_ph_min').value = g.ph_min;
-    document.getElementById('goal_ph_max').value = g.ph_max;
-    document.getElementById('goal_np_min').value = g.np_min;
-    document.getElementById('goal_np_max').value = g.np_max;
-  }
-}
-
-
-function updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3) {
-  const g = getGoals();
-  const { no3, po4, fe, ph, kh, gh } = state;
-  const container = document.getElementById('advisor_panels');
-  if (!container) return;
-
-  let panels = [];
-  let issuesCount = 0;
-
-  // 1. CO2 & pH
-  let co2Status = 'ok', co2Badge = 'Optymalne', co2Text = `Stężenie CO₂ wynosi ${co2.toFixed(1)} mg/l (pH: ${ph}). Warunki do fotosyntezy są bardzo dobre.`;
-  if (co2 < g.co2_min) {
-    co2Status = 'warn'; co2Badge = 'Za mało CO₂'; co2Text = `Poziom gazu (${co2.toFixed(1)} mg/l) jest poniżej Twojego minimum (${g.co2_min} mg/l). Wzrost roślin może zwolnić. Zwiększ podawanie CO₂.`;
-    issuesCount++;
-  } else if (co2 > g.co2_max) {
-    co2Status = 'err'; co2Badge = 'Ryzyko przyduchy'; co2Text = `Stężenie CO₂ (${co2.toFixed(1)} mg/l) przekracza próg bezpieczeństwa (${g.co2_max} mg/l). Ryzyko dla ryb i krewetek! Zmniejsz dozowanie gazu.`;
-    issuesCount++;
-  }
-  panels.push({ title: 'Gaz i Fotosynteza (CO₂)', badge: co2Badge, status: co2Status, desc: co2Text });
-
-  // 2. Redfield N:P
-  let npStatus = 'ok', npBadge = 'Strefa bez glonów', npText = `Stosunek atomowy N:P wynosi ${atomicNP.toFixed(1)}:1 (mieszczący się w Twoim zakresie ${g.np_min}-${g.np_max}). Równowaga makro zachowana.`;
-  if (atomicNP < g.np_min) {
-    npStatus = 'err'; npBadge = 'Ryzyko Sinic'; npText = `Stosunek N:P (${atomicNP.toFixed(1)}) jest za niski względem Twojego celu (${g.np_min}). Za mało azotu – wysokie ryzyko sinic. Podnieś dawkę NO₃.`;
-    issuesCount++;
-  } else if (atomicNP > g.np_max) {
-    npStatus = 'warn'; npBadge = 'Ryzyko Zielenic (GSA)'; npText = `Stosunek N:P (${atomicNP.toFixed(1)}) przekracza górną granicę (${g.np_max}). Nadmiar azotu sprzyja twardym zielenicom punktowym. Rozważ podanie PO₄.`;
-    issuesCount++;
-  }
-  panels.push({ title: 'Równowaga Makro (Redfield N:P)', badge: npBadge, status: npStatus, desc: npText });
-
-  // 3. PO4 : Fe
-  let feStatus = 'ok', feBadge = 'Bilans Prawidłowy', feText = `Relacja fosforu do żelaza (${pofe.toFixed(1)}:1) jest zrównoważona. Brak ryzyka wytrącania.`;
-  if (fe === 0) {
-    feStatus = 'warn'; feBadge = 'Brak Żelaza'; feText = `Brak wykrywalnego żelaza w słupie wody. Rośliny mogą cierpieć na chlorozę młodych liści.`;
-    issuesCount++;
-  } else if (pofe < 2.0) {
-    feStatus = 'err'; feBadge = 'Ryzyko Krasnorostów (BBA)'; feText = `Żelaza jest za dużo względem fosforanów (${pofe.toFixed(1)}:1). Ryzyko wytrącania fosforanu żelaza i wysypu krasnorostów. Zredukuj mikro lub podbij PO₄.`;
-    issuesCount++;
-  } else if (pofe > 7.0) {
-    feStatus = 'warn'; feBadge = 'Niskie Mikro / Fe'; feText = `Stosunek PO₄ do Fe jest wysoki. Upewnij się, że dawka mikroelementów pokrywa zapotrzebowanie roślin.`;
-    issuesCount++;
-  }
-  panels.push({ title: 'Współpraca Fosforu z Żelazem', badge: feBadge, status: feStatus, desc: feText });
-
-  // 4. KH, GH i ich stosunek (Nowość z pełną diagnostyką!)
-  const khPct = gh > 0 ? Math.round((kh / gh) * 100) : 0;
-  let ghStatus = 'ok', ghBadge = 'Stosunek KH/GH Idealny', ghText = `Twardość węglanowa (KH: ${kh} °dH) stanowi ${khPct}% twardości ogólnej (GH: ${gh} °dH). Twardość stała niewęglanowa wynosi ${nkh.toFixed(1)} °dH. Oznacza to zdrową proporcję minerałów (wapń/magnez) dla roślin i ryb.`;
-  
-  if (kh > gh) {
-    ghStatus = 'err'; ghBadge = 'Nieprawidłowość: KH > GH'; ghText = `Uwaga! Twardość węglanowa (${kh} °dH) jest wyższa niż ogólna (${gh} °dH). Oznacza to występowanie węglanów sodu lub potasu w wodzie (tzw. woda sodowa). Może to blokować przyswajanie wapnia przez rośliny.`;
-    issuesCount++;
-  } else if (gh === 0) {
-    ghStatus = 'warn'; ghBadge = 'Brak minerałów (GH = 0)'; ghText = `Woda całkowicie miękka / RO bez mineralizacji. Rośliny i ryby szybko ucierpią z powodu braku mikroelementów (Ca i Mg). Konieczne użycie mineralizatora GH+.`;
-    issuesCount++;
-  } else if (khPct < 30) {
-    ghStatus = 'warn'; ghBadge = 'Niskie KH względem GH'; ghText = `Niskie KH (${kh} °dH przy GH ${gh} °dH, tj. ${khPct}%). Bufor pH jest słaby, ryzyko nagłych wahań kwasowości (tzw. crash pH).`;
-    issuesCount++;
-  } else if (khPct > 85) {
-    ghStatus.status = 'warn'; ghBadge = 'Wysokie KH względem GH'; ghText = `Wysoki udział KH w GH (${khPct}%). Woda mocno zbuforowana, co może utrudniać obniżanie pH za pomocą CO₂.`;
-  }
-  panels.push({ title: 'Twardość i Stosunek KH do GH', badge: ghBadge, status: ghStatus, desc: ghText });
-
-  container.innerHTML = panels.map(p => `
-    <div class="diag-item">
-      <div class="diag-top">
-        <span class="diag-name">${p.title}</span>
-        <span class="badge ${p.status}">${p.badge}</span>
-      </div>
-      <div class="diag-desc">${p.desc}</div>
-    </div>
-  `).join('');
-
-  const generalBadge = document.getElementById('advisor_general_badge');
-  if (generalBadge) {
-    if (issuesCount === 0) {
-      setBadge(generalBadge, '🟢 Akwarium w świetnej formie', 'ok');
-    } else {
-      setBadge(generalBadge, `⚠️ Wymaga korekty (${issuesCount} uwagi)`, 'warn');
-    }
-  }
-}
-
 
 function resetDefaults() {
   const defs = { no3: 15, po4: 1.0, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0 };
@@ -1146,49 +885,7 @@ window.addEventListener('resize', () => {
   }
 });
 
-
-// ================= KOPIA ZAPASOWA (EKSPORT / IMPORT) =================
-
-function exportBackup() {
-  const hist = localStorage.getItem('aqualab_history') || '[]';
-  const blob = new Blob([hist], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const dateStr = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `AquaLab_Kopia_Zapasowa_${dateStr}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function importBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) {
-        throw new Error('Nieprawidłowy format pliku');
-      }
-      if (confirm(`Znaleziono ${data.length} pomiarów w pliku kopii zapasowej. Czy chcesz je zaimportować? (Zastąpi obecną historię)`)) {
-        localStorage.setItem('aqualab_history', JSON.stringify(data));
-        renderHistory();
-        drawTrendChart();
-        alert('Kopia zapasowa została pomyślnie zaimportowana!');
-      }
-    } catch (err) {
-      alert('Błąd podczas importu pliku: Wybrany plik nie jest poprawną kopią zapasową AquaLab.');
-    }
-    event.target.value = ''; // Reset inputu
-  };
-  reader.readAsText(file);
-}
-
 window.onload = () => {
-  loadGoalsToInputs();
   renderSeriesToggles();
   calculateAll();
   renderHistory();
