@@ -710,28 +710,33 @@ function resetGoals() {
 
 function loadGoalsToInputs() {
   const g = getGoals();
-  if (g.co2_min >= 18) {
-    document.getElementById('btn_hightech').classList.add('active-mode');
-    document.getElementById('btn_lowtech').classList.remove('active-mode');
-    document.getElementById('mode_info_text').innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
-  } else {
-    document.getElementById('btn_lowtech').classList.add('active-mode');
-    document.getElementById('btn_hightech').classList.remove('active-mode');
-    document.getElementById('mode_info_text').innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro.';
+  if (document.getElementById('btn_hightech') && document.getElementById('btn_lowtech')) {
+    if (g.co2_min >= 18) {
+      document.getElementById('btn_hightech').classList.add('active-mode');
+      document.getElementById('btn_lowtech').classList.remove('active-mode');
+      const info = document.getElementById('mode_info_text');
+      if(info) info.innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
+    } else {
+      document.getElementById('btn_lowtech').classList.add('active-mode');
+      document.getElementById('btn_hightech').classList.remove('active-mode');
+      const info = document.getElementById('mode_info_text');
+      if(info) info.innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro.';
+    }
   }
-  const g = getGoals();
-  document.getElementById('goal_no3_min').value = g.no3_min;
-  document.getElementById('goal_no3_max').value = g.no3_max;
-  document.getElementById('goal_po4_min').value = g.po4_min;
-  document.getElementById('goal_po4_max').value = g.po4_max;
-  document.getElementById('goal_fe_min').value = g.fe_min;
-  document.getElementById('goal_fe_max').value = g.fe_max;
-  document.getElementById('goal_co2_min').value = g.co2_min;
-  document.getElementById('goal_co2_max').value = g.co2_max;
-  document.getElementById('goal_ph_min').value = g.ph_min;
-  document.getElementById('goal_ph_max').value = g.ph_max;
-  document.getElementById('goal_np_min').value = g.np_min;
-  document.getElementById('goal_np_max').value = g.np_max;
+  if(document.getElementById('goal_no3_min')) {
+    document.getElementById('goal_no3_min').value = g.no3_min;
+    document.getElementById('goal_no3_max').value = g.no3_max;
+    document.getElementById('goal_po4_min').value = g.po4_min;
+    document.getElementById('goal_po4_max').value = g.po4_max;
+    document.getElementById('goal_fe_min').value = g.fe_min;
+    document.getElementById('goal_fe_max').value = g.fe_max;
+    document.getElementById('goal_co2_min').value = g.co2_min;
+    document.getElementById('goal_co2_max').value = g.co2_max;
+    document.getElementById('goal_ph_min').value = g.ph_min;
+    document.getElementById('goal_ph_max').value = g.ph_max;
+    document.getElementById('goal_np_min').value = g.np_min;
+    document.getElementById('goal_np_max').value = g.np_max;
+  }
 }
 
 
