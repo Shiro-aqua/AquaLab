@@ -1,6 +1,6 @@
 JavaScript
 
-const CACHE_NAME = 'aqualab-v3'; // Zmieniaj numer (v3, v4, v5...) za każdym razem, gdy zmieniasz coś w index.html!
+const CACHE_NAME = 'aqualab-v1'; 
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
