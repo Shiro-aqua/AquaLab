@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<link rel="manifest" href="manifest.json">
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -105,6 +104,7 @@
   <button class="tab-btn active" onclick="switchTab('calc', this)">Kalkulator</button>
   <button class="tab-btn" onclick="switchTab('chart', this)">Wykresy</button>
   <button class="tab-btn" onclick="switchTab('dose', this)">Dawkowanie</button>
+  <button class="tab-btn" onclick="switchTab('goals', this)">Cele</button>
   <button class="tab-btn" onclick="switchTab('hist', this)">Historia (<span id="histCount">0</span>)</button>
 </div>
 
@@ -208,45 +208,18 @@
     </div>
   </div>
 
-  <!-- SZCZEGÓŁOWA TABELA DIAGNOSTYCZNA -->
+  <!-- LUDZKI PANEL DORADCY AKWARYSTYCZNEGO -->
   <div class="card">
-    <div class="card-title">Pełna diagnostyka wyliczeń</div>
-    <div class="diag-list">
-      <div class="diag-item">
-        <div class="diag-top">
-          <span class="diag-name">Czysty Azot (N-NO₃) i Fosfor (P-PO₄)</span>
-          <span class="badge ok" id="out_np_pure">N: 3.39 | P: 0.33 mg/l</span>
-        </div>
-        <div class="diag-desc" id="desc_redfield">Stosunek atomowy w normie. Niskie ryzyko zarówno sinic, jak i zielenic punktowych (GSA).</div>
-      </div>
-
-      <div class="diag-item">
-        <div class="diag-top">
-          <span class="diag-name">Twardość stała niewęglanowa (GH - KH)</span>
-          <span class="badge ok" id="out_nkh">3.0 °dH (KH = 63% GH)</span>
-        </div>
-        <div class="diag-desc" id="desc_nkh">Prawidłowy zapas siarczanów i chlorków wapnia oraz magnezu.</div>
-      </div>
-
-      <div class="diag-item">
-        <div class="diag-top">
-          <span class="diag-name">Relacja Fosfor – Żelazo (PO₄ : Fe)</span>
-          <span class="badge ok" id="out_fe_status">Brak wytrącania</span>
-        </div>
-        <div class="diag-desc" id="desc_fe">Żelazo w bezpiecznej proporcji do fosforanów. Niskie ryzyko krasnorostów (BBA).</div>
-      </div>
-
-      <div class="diag-item">
-        <div class="diag-top">
-          <span class="diag-name">Bazowa mineralizacja z twardości (CaCO₃)</span>
-          <span class="badge ok" id="out_tds">~143 mg/l CaCO₃</span>
-        </div>
-        <div class="diag-desc">Szacunkowy ekwiwalent węglanu wapnia wynikający z twardości ogólnej GH.</div>
-      </div>
+    <div class="card-title">
+      <span>Doradca Akwarystyczny (Diagnoza)</span>
+      <span class="badge ok" id="advisor_general_badge">Akwarium stabilne</span>
+    </div>
+    <div class="diag-list" id="advisor_panels">
+      <!-- Generowane dynamicznie -->
     </div>
 
-    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. po podmianie 30%, przycięta Rotala)...">
-    <button class="btn-main" onclick="saveMeasurement()">💾 Zapisz pomiar</button>
+    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. po podmianie 30%, przycięta Rotala)..." style="margin-top:14px;">
+    <button class="btn-main" onclick="saveMeasurement()">💾 Zapisz pomiar w historii</button>
   </div>
 </div>
 
@@ -316,12 +289,85 @@
   </div>
 </div>
 
+<!-- TAB: CELE / WYMAGANIA -->
+<div id="tab-goals" class="panel">
+  <div class="card">
+    <div class="card-title">
+      <span>Wybór stylu akwarium</span>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <button class="btn-secondary active-mode" id="btn_hightech" onclick="setAquariumMode('hightech')" style="flex:1; padding:10px;">⚡ High-Tech (z CO₂)</button>
+      <button class="btn-secondary" id="btn_lowtech" onclick="setAquariumMode('lowtech')" style="flex:1; padding:10px;">🌿 Low-Tech (bez CO₂)</button>
+    </div>
+    <div id="mode_info_text" style="font-size:0.76rem; color:#34d399; margin-bottom:14px; background:rgba(16,185,129,0.1); padding:8px; border-radius:8px;">
+      ⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.
+    </div>
+
+    <div class="card-title" style="margin-top:10px;">
+      <span>Własne zakresy docelowe</span>
+      <button class="btn-secondary" onclick="resetGoals()">Reset</button>
+    </div>
+    <div style="font-size:0.76rem; color:var(--muted); margin-bottom:12px;">
+      Wartości optymalne podstawiają się automatycznie po wybraniu stylu. Możesz je w każdej chwili dostosować.
+    </div>
+    <div class="param-grid">
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">NO₃ Min - Max</span><span class="param-unit">mg/l</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_no3_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
+          <input type="number" id="goal_no3_max" class="param-input" style="width:100%;" step="1" value="25" onchange="saveGoals()">
+        </div>
+      </div>
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">PO₄ Min - Max</span><span class="param-unit">mg/l</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_po4_min" class="param-input" style="width:100%;" step="0.1" value="0.8" onchange="saveGoals()">
+          <input type="number" id="goal_po4_max" class="param-input" style="width:100%;" step="0.1" value="1.5" onchange="saveGoals()">
+        </div>
+      </div>
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">Fe Min - Max</span><span class="param-unit">mg/l</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_fe_min" class="param-input" style="width:100%;" step="0.05" value="0.1" onchange="saveGoals()">
+          <input type="number" id="goal_fe_max" class="param-input" style="width:100%;" step="0.05" value="0.4" onchange="saveGoals()">
+        </div>
+      </div>
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">CO₂ Min - Max</span><span class="param-unit">mg/l</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_co2_min" class="param-input" style="width:100%;" step="1" value="20" onchange="saveGoals()">
+          <input type="number" id="goal_co2_max" class="param-input" style="width:100%;" step="1" value="32" onchange="saveGoals()">
+        </div>
+      </div>
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">pH Min - Max</span><span class="param-unit">pH</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_ph_min" class="param-input" style="width:100%;" step="0.05" value="6.4" onchange="saveGoals()">
+          <input type="number" id="goal_ph_max" class="param-input" style="width:100%;" step="0.05" value="7.0" onchange="saveGoals()">
+        </div>
+      </div>
+      <div class="param-box">
+        <div class="param-header"><span class="param-label">Redfield N:P</span><span class="param-unit">zakres</span></div>
+        <div style="display:flex; gap:6px;">
+          <input type="number" id="goal_np_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
+          <input type="number" id="goal_np_max" class="param-input" style="width:100%;" step="1" value="22" onchange="saveGoals()">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TAB 4: HISTORIA POMIARÓW -->
 <div id="tab-hist" class="panel">
   <div class="card">
     <div class="card-title">
       <span>Zapisane pomiary (Pamięć telefonu)</span>
-      <button class="btn-secondary" onclick="clearHistory()">Wyczyść</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-secondary" onclick="exportBackup()" title="Pobierz kopię zapasową JSON">Eksport</button>
+        <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Wgraj kopię zapasową JSON">Import</button>
+        <button class="btn-secondary" onclick="clearHistory()" style="color:#f87171;">Wyczyść</button>
+      </div>
+      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
     </div>
     <div id="history_container"></div>
   </div>
@@ -330,7 +376,6 @@
 <script>
 const state = { no3: 15, po4: 1.0, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0 };
 
-// Konfiguracja serii wykresu (Makro, Mikro i pozostałe wskaźniki)
 const SERIES_CONFIG = [
   { key: 'no3', label: 'NO₃ (Makro)', unit: 'mg/l', color: '#38bdf8', active: true, maxRef: 30 },
   { key: 'po4', label: 'PO₄ (Makro)', unit: 'mg/l', color: '#a855f7', active: true, maxRef: 2.5 },
@@ -342,7 +387,7 @@ const SERIES_CONFIG = [
   { key: 'ph',  label: 'pH',          unit: '',     color: '#f43f5e', active: false, maxRef: 8.0 }
 ];
 
-let chartMode = 'raw'; // 'raw' lub 'norm'
+let chartMode = 'raw';
 let selectedPointIdx = null;
 
 function sync(key, val) {
@@ -362,7 +407,6 @@ function setBadge(el, text, level) {
 function calculateAll() {
   const { no3, po4, fe, ph, kh, gh } = state;
 
-  // 1. CO2
   const co2 = 3 * kh * Math.pow(10, 7 - ph);
   document.getElementById('out_co2').textContent = co2.toFixed(1) + ' mg/l';
   const bCo2 = document.getElementById('badge_co2');
@@ -370,7 +414,6 @@ function calculateAll() {
   else if (co2 <= 32) setBadge(bCo2, 'Optymalnie (20-30)', 'ok');
   else setBadge(bCo2, 'Uwaga! Ryzyko przyduchy', 'err');
 
-  // 2. Redfield i masowy
   const pureN = no3 * 0.2259;
   const pureP = po4 * 0.3261;
   const massRatio = po4 > 0 ? (no3 / po4) : 0;
@@ -383,67 +426,24 @@ function calculateAll() {
 
   document.getElementById('out_redfield').textContent = po4 > 0 ? atomicNP.toFixed(1) + ' : 1' : '∞';
   const bRed = document.getElementById('badge_redfield');
-  const dRed = document.getElementById('desc_redfield');
   if (atomicNP < 10) {
     setBadge(bRed, 'Ryzyko Sinic (<10:1)', 'err');
-    dRed.textContent = 'Zbyt mało azotu względem fosforu (N:P < 10). Zwiększ dawkowanie NO₃ lub zredukuj PO₄, aby uniknąć cyjanobakterii.';
   } else if (atomicNP <= 22) {
     setBadge(bRed, 'Strefa bez glonów (10-22)', 'ok');
-    dRed.textContent = 'Stosunek atomowy N:P w idealnej strefie Buddy/Redfielda. Rośliny optymalnie pobierają makroelementy.';
   } else {
     setBadge(bRed, 'Ryzyko Zielenic (>22:1)', 'warn');
-    dRed.textContent = 'Nadmiar azotu względem fosforu (N:P > 22). Ryzyko wysypu zielenic punktowych (GSA) na szybach i liściach.';
   }
 
-  document.getElementById('out_np_pure').textContent = `N: ${pureN.toFixed(2)} | P: ${pureP.toFixed(2)} mg/l`;
-
-  // 3. PO4 : Fe
   const pofe = fe > 0 ? (po4 / fe) : 0;
   document.getElementById('out_pofe').textContent = fe > 0 ? pofe.toFixed(1) + ' : 1' : 'Brak Fe';
   const bPofe = document.getElementById('badge_pofe');
-  const bFeStat = document.getElementById('out_fe_status');
-  const dFe = document.getElementById('desc_fe');
+  if (fe === 0) setBadge(bPofe, 'Niedobór Fe', 'warn');
+  else if (pofe >= 2 && pofe <= 6) setBadge(bPofe, 'Optymalny (2:1 - 5:1)', 'ok');
+  else setBadge(bPofe, 'Uwaga', 'warn');
 
-  if (fe === 0) {
-    setBadge(bPofe, 'Niedobór Fe', 'warn');
-    setBadge(bFeStat, 'Zero żelaza', 'warn');
-    dFe.textContent = 'Brak wykrywalnego żelaza – ryzyko chlorozy młodych liści.';
-  } else if (pofe < 2.0) {
-    setBadge(bPofe, 'Za dużo Fe (<2:1)', 'err');
-    setBadge(bFeStat, 'Ryzyko krasnorostów', 'err');
-    dFe.textContent = 'Zbyt wysokie Fe względem PO₄. Ryzyko wytrącania fosforanu żelaza i wysypu krasnorostów (BBA) oraz nitek.';
-  } else if (pofe <= 6.0) {
-    setBadge(bPofe, 'Optymalnie (2:1 - 5:1)', 'ok');
-    setBadge(bFeStat, 'Bilans prawidłowy', 'ok');
-    dFe.textContent = 'Żelazo i fosforany w bezpiecznej równowadze.';
-  } else {
-    setBadge(bPofe, 'Mało Fe (>6:1)', 'warn');
-    setBadge(bFeStat, 'Niskie mikro', 'warn');
-    dFe.textContent = 'Wysoki fosfor przy niskim żelazie – obserwuj stożki wzrostu (np. u Rotali) pod kątem bielenia.';
-  }
-
-  // 4. Twardość stała GH - KH
   const nkh = gh - kh;
-  const khPct = gh > 0 ? Math.round((kh / gh) * 100) : 0;
-  const bNkh = document.getElementById('out_nkh');
-  const dNkh = document.getElementById('desc_nkh');
-
-  if (nkh < 0) {
-    setBadge(bNkh, `KH > GH (${nkh.toFixed(1)} °dH)`, 'err');
-    dNkh.textContent = 'Twardość węglanowa wyższa niż ogólna – w wodzie występują węglany sodu/potasu. Ryzyko blokady przyswajania wapnia.';
-  } else if (nkh < 1.5) {
-    setBadge(bNkh, `${nkh.toFixed(1)} °dH (KH = ${khPct}% GH)`, 'warn');
-    dNkh.textContent = 'Mała twardość niewęglanowa – możliwy deficyt siarczanów wapnia i magnezu (poskręcane młode liście).';
-  } else {
-    setBadge(bNkh, `${nkh.toFixed(1)} °dH (KH = ${khPct}% GH)`, 'ok');
-    dNkh.textContent = 'Prawidłowy zapas twardości niewęglanowej (Ca/Mg).';
-  }
-
-  // 5. CaCO3
-  const caco3 = Math.round(gh * 17.85);
-  document.getElementById('out_tds').textContent = `~${caco3} mg/l CaCO₃`;
-
   calcDosing();
+  updateHumanAdvisor(co2, atomicNP, pofe, nkh, Math.round(gh * 17.85));
 }
 
 function calcDosing() {
@@ -504,18 +504,12 @@ function saveMeasurement() {
   const now = new Date();
   const dateStr = now.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit'}) + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
 
-  hist.unshift({
-    date: dateStr,
-    ...state,
-    co2,
-    redfield,
-    note
-  });
+  hist.unshift({ date: dateStr, ...state, co2, redfield, note });
   localStorage.setItem('aqualab_history', JSON.stringify(hist));
   document.getElementById('note_input').value = '';
   renderHistory();
   drawTrendChart();
-  alert('Pomiar został zapisany! Możesz zobaczyć zmianę w zakładce Wykresy.');
+  alert('Pomiar został zapisany!');
 }
 
 function renderHistory() {
@@ -523,7 +517,7 @@ function renderHistory() {
   document.getElementById('histCount').textContent = hist.length;
   const container = document.getElementById('history_container');
   if (hist.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:16px;">Brak zapisanych pomiarów. Kliknij "Zapisz pomiar" w zakładce Kalkulator.</div>';
+    container.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:16px;">Brak zapisanych pomiarów.</div>';
     return;
   }
   container.innerHTML = hist.map((item, idx) => `
@@ -539,7 +533,6 @@ function renderHistory() {
         <div>pH: <strong>${item.ph}</strong></div>
         <div>KH/GH: <strong>${item.kh}/${item.gh}</strong></div>
         <div>CO₂: <strong>${item.co2}</strong></div>
-        <div style="grid-column: span 3;">Redfield (N:P): <strong>${item.redfield} : 1</strong></div>
       </div>
       ${item.note ? `<div style="margin-top:6px; font-size:0.78rem; color:#cbd5e1; font-style:italic;">📝 ${item.note}</div>` : ''}
     </div>
@@ -555,11 +548,187 @@ function deleteEntry(idx) {
 }
 
 function clearHistory() {
-  if (confirm('Czy na pewno wyczyścić całą historię pomiarów?')) {
+  if (confirm('Wyczyścić całą historię?')) {
     localStorage.removeItem('aqualab_history');
     selectedPointIdx = null;
     renderHistory();
     drawTrendChart();
+  }
+}
+
+// CELE I TRYBY
+const defaultGoals = { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 22 };
+const presetModes = {
+  hightech: { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 22 },
+  lowtech: { no3_min: 5, no3_max: 15, po4_min: 0.3, po4_max: 0.8, fe_min: 0.05, fe_max: 0.2, co2_min: 5, co2_max: 15, ph_min: 6.8, ph_max: 7.6, np_min: 10, np_max: 22 }
+};
+
+function setAquariumMode(modeName) {
+  const mode = presetModes[modeName];
+  if (!mode) return;
+  document.getElementById('goal_no3_min').value = mode.no3_min;
+  document.getElementById('goal_no3_max').value = mode.no3_max;
+  document.getElementById('goal_po4_min').value = mode.po4_min;
+  document.getElementById('goal_po4_max').value = mode.po4_max;
+  document.getElementById('goal_fe_min').value = mode.fe_min;
+  document.getElementById('goal_fe_max').value = mode.fe_max;
+  document.getElementById('goal_co2_min').value = mode.co2_min;
+  document.getElementById('goal_co2_max').value = mode.co2_max;
+  document.getElementById('goal_ph_min').value = mode.ph_min;
+  document.getElementById('goal_ph_max').value = mode.ph_max;
+  document.getElementById('goal_np_min').value = mode.np_min;
+  document.getElementById('goal_np_max').value = mode.np_max;
+
+  saveGoals();
+  document.getElementById('btn_hightech').classList.toggle('active-mode', modeName === 'hightech');
+  document.getElementById('btn_lowtech').classList.toggle('active-mode', modeName === 'lowtech');
+  
+  const infoBox = document.getElementById('mode_info_text');
+  if (modeName === 'hightech') {
+    infoBox.innerHTML = '⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-30 mg/l) i bogate nawożenie słupa wody.';
+  } else {
+    infoBox.innerHTML = '🌿 <strong>Tryb Low-Tech:</strong> Akwarium bez gazu lub z minimalnym CO₂, wolniejszy wzrost roślin, niższe stężenia makro i mikro.';
+  }
+}
+
+function getGoals() {
+  try {
+    const saved = localStorage.getItem('aqualab_goals');
+    return saved ? {...defaultGoals, ...JSON.parse(saved)} : defaultGoals;
+  } catch(e) { return defaultGoals; }
+}
+
+function saveGoals() {
+  const goals = {
+    no3_min: parseFloat(document.getElementById('goal_no3_min').value) || 10,
+    no3_max: parseFloat(document.getElementById('goal_no3_max').value) || 25,
+    po4_min: parseFloat(document.getElementById('goal_po4_min').value) || 0.8,
+    po4_max: parseFloat(document.getElementById('goal_po4_max').value) || 1.5,
+    fe_min: parseFloat(document.getElementById('goal_fe_min').value) || 0.1,
+    fe_max: parseFloat(document.getElementById('goal_fe_max').value) || 0.4,
+    co2_min: parseFloat(document.getElementById('goal_co2_min').value) || 20,
+    co2_max: parseFloat(document.getElementById('goal_co2_max').value) || 32,
+    ph_min: parseFloat(document.getElementById('goal_ph_min').value) || 6.4,
+    ph_max: parseFloat(document.getElementById('goal_ph_max').value) || 7.0,
+    np_min: parseFloat(document.getElementById('goal_np_min').value) || 10,
+    np_max: parseFloat(document.getElementById('goal_np_max').value) || 22
+  };
+  localStorage.setItem('aqualab_goals', JSON.stringify(goals));
+  calculateAll();
+}
+
+function resetGoals() {
+  localStorage.removeItem('aqualab_goals');
+  loadGoalsToInputs();
+  calculateAll();
+  alert('Przywrócono domyślne wymagania!');
+}
+
+function loadGoalsToInputs() {
+  const g = getGoals();
+  if (document.getElementById('btn_hightech') && document.getElementById('btn_lowtech')) {
+    if (g.co2_min >= 18) {
+      document.getElementById('btn_hightech').classList.add('active-mode');
+      document.getElementById('btn_lowtech').classList.remove('active-mode');
+    } else {
+      document.getElementById('btn_lowtech').classList.add('active-mode');
+      document.getElementById('btn_hightech').classList.remove('active-mode');
+    }
+  }
+  if(document.getElementById('goal_no3_min')) {
+    document.getElementById('goal_no3_min').value = g.no3_min;
+    document.getElementById('goal_no3_max').value = g.no3_max;
+    document.getElementById('goal_po4_min').value = g.po4_min;
+    document.getElementById('goal_po4_max').value = g.po4_max;
+    document.getElementById('goal_fe_min').value = g.fe_min;
+    document.getElementById('goal_fe_max').value = g.fe_max;
+    document.getElementById('goal_co2_min').value = g.co2_min;
+    document.getElementById('goal_co2_max').value = g.co2_max;
+    document.getElementById('goal_ph_min').value = g.ph_min;
+    document.getElementById('goal_ph_max').value = g.ph_max;
+    document.getElementById('goal_np_min').value = g.np_min;
+    document.getElementById('goal_np_max').value = g.np_max;
+  }
+}
+
+// DORADCA AKWARYSTYCZNY Z ANALIZĄ KH/GH
+function updateHumanAdvisor(co2, atomicNP, pofe, nkh, caco3) {
+  const g = getGoals();
+  const { no3, po4, fe, ph, kh, gh } = state;
+  const container = document.getElementById('advisor_panels');
+  if (!container) return;
+
+  let panels = [];
+  let issuesCount = 0;
+
+  // 1. CO2
+  let co2Status = 'ok', co2Badge = 'Optymalne', co2Text = `Stężenie CO₂ wynosi ${co2.toFixed(1)} mg/l (pH: ${ph}). Warunki do fotosyntezy są bardzo dobre.`;
+  if (co2 < g.co2_min) {
+    co2Status = 'warn'; co2Badge = 'Za mało CO₂'; co2Text = `Poziom gazu (${co2.toFixed(1)} mg/l) jest poniżej Twojego minimum (${g.co2_min} mg/l). Wzrost roślin może zwolnić. Zwiększ podawanie CO₂.`;
+    issuesCount++;
+  } else if (co2 > g.co2_max) {
+    co2Status = 'err'; co2Badge = 'Ryzyko przyduchy'; co2Text = `Stężenie CO₂ (${co2.toFixed(1)} mg/l) przekracza próg bezpieczeństwa (${g.co2_max} mg/l). Ryzyko dla ryb i krewetek!`;
+    issuesCount++;
+  }
+  panels.push({ title: 'Gaz i Fotosynteza (CO₂)', badge: co2Badge, status: co2Status, desc: co2Text });
+
+  // 2. Redfield N:P
+  let npStatus = 'ok', npBadge = 'Strefa bez glonów', npText = `Stosunek atomowy N:P wynosi ${atomicNP.toFixed(1)}:1 (mieszczący się w Twoim zakresie ${g.np_min}-${g.np_max}). Równowaga makro zachowana.`;
+  if (atomicNP < g.np_min) {
+    npStatus = 'err'; npBadge = 'Ryzyko Sinic'; npText = `Stosunek N:P (${atomicNP.toFixed(1)}) jest za niski względem celu (${g.np_min}). Za mało azotu – ryzyko sinic. Podnieś NO₃.`;
+    issuesCount++;
+  } else if (atomicNP > g.np_max) {
+    npStatus = 'warn'; npBadge = 'Ryzyko Zielenic (GSA)'; npText = `Stosunek N:P (${atomicNP.toFixed(1)}) przekracza górną granicę (${g.np_max}). Nadmiar azotu sprzyja zielenicom punktowym. Podaj PO₄.`;
+    issuesCount++;
+  }
+  panels.push({ title: 'Równowaga Makro (Redfield N:P)', badge: npBadge, status: npStatus, desc: npText });
+
+  // 3. PO4 : Fe
+  let feStatus = 'ok', feBadge = 'Bilans Prawidłowy', feText = `Relacja fosforu do żelaza (${pofe.toFixed(1)}:1) jest zrównoważona. Brak ryzyka wytrącania.`;
+  if (fe === 0) {
+    feStatus = 'warn'; feBadge = 'Brak Żelaza'; feText = `Brak wykrywalnego żelaza w słupie wody. Rośliny mogą cierpieć na chlorozę młodych liści.`;
+    issuesCount++;
+  } else if (pofe < 2.0) {
+    feStatus = 'err'; feBadge = 'Ryzyko Krasnorostów (BBA)'; feText = `Żelaza jest za dużo względem fosforanów (${pofe.toFixed(1)}:1). Ryzyko wytrącania i krasnorostów BBA. Zredukuj mikro lub podbij PO₄.`;
+    issuesCount++;
+  } else if (pofe > 7.0) {
+    feStatus = 'warn'; feBadge = 'Niskie Mikro / Fe'; feText = `Stosunek PO₄ do Fe jest wysoki. Upewnij się, że dawka mikroelementów pokrywa zapotrzebowanie.`;
+    issuesCount++;
+  }
+  panels.push({ title: 'Współpraca Fosforu z Żelazem', badge: feBadge, status: feStatus, desc: feText });
+
+  // 4. Analiza KH, GH i ich stosunek
+  const khPct = gh > 0 ? Math.round((kh / gh) * 100) : 0;
+  let ghStatus = 'ok', ghBadge = 'Stosunek KH/GH Idealny', ghText = `Twardość węglanowa (KH: ${kh} °dH) stanowi ${khPct}% twardości ogólnej (GH: ${gh} °dH). Twardość stała niewęglanowa wynosi ${nkh.toFixed(1)} °dH. Zdrowa proporcja minerałów (Ca/Mg) dla roślin i ryb.`;
+  
+  if (kh > gh) {
+    ghStatus = 'err'; ghBadge = 'Nieprawidłowość: KH > GH'; ghText = `Uwaga! Twardość węglanowa (${kh} °dH) jest wyższa niż ogólna (${gh} °dH). Oznacza to węglany sodu/potasu (woda sodowa). Blokuje przyswajanie wapnia!`;
+    issuesCount++;
+  } else if (gh === 0) {
+    ghStatus = 'warn'; ghBadge = 'Brak minerałów (GH = 0)'; ghText = `Woda całkowicie miękka / RO bez mineralizacji. Konieczne użycie mineralizatora GH+ dla zdrowia roślin i ryb.`;
+    issuesCount++;
+  } else if (khPct < 30) {
+    ghStatus = 'warn'; ghBadge = 'Niskie KH względem GH'; ghText = `Niskie KH (${kh} °dH przy GH ${gh} °dH, tj. ${khPct}%). Bufor pH jest słaby, ryzyko nagłych wahań kwasowości (crash pH).`;
+  }
+  panels.push({ title: 'Twardość i Stosunek KH do GH', badge: ghBadge, status: ghStatus, desc: ghText });
+
+  container.innerHTML = panels.map(p => `
+    <div class="diag-item">
+      <div class="diag-top">
+        <span class="diag-name">${p.title}</span>
+        <span class="badge ${p.status}">${p.badge}</span>
+      </div>
+      <div class="diag-desc">${p.desc}</div>
+    </div>
+  `).join('');
+
+  const generalBadge = document.getElementById('advisor_general_badge');
+  if (generalBadge) {
+    if (issuesCount === 0) {
+      setBadge(generalBadge, '🟢 Akwarium w świetnej formie', 'ok');
+    } else {
+      setBadge(generalBadge, `⚠️ Wymaga korekty (${issuesCount} uwagi)`, 'warn');
+    }
   }
 }
 
@@ -568,10 +737,10 @@ function resetDefaults() {
   Object.keys(defs).forEach(k => sync(k, defs[k]));
 }
 
-// ================= WYKRES LINIOWY (MAKRO + MIKRO + INNE) =================
-
+// WYKRESY
 function renderSeriesToggles() {
   const wrap = document.getElementById('series_toggles');
+  if(!wrap) return;
   wrap.innerHTML = SERIES_CONFIG.map((s, i) => `
     <div class="series-chip ${s.active ? 'active' : ''}" onclick="toggleSeries(${i})">
       <span class="dot" style="background:${s.color}; color:${s.color};"></span>
@@ -588,11 +757,8 @@ function toggleSeries(idx) {
 
 function toggleAllSeries(allActive) {
   SERIES_CONFIG.forEach(s => {
-    if (allActive) {
-      s.active = true;
-    } else {
-      s.active = ['no3', 'po4', 'fe'].includes(s.key);
-    }
+    if (allActive) s.active = true;
+    else s.active = ['no3', 'po4', 'fe'].includes(s.key);
   });
   renderSeriesToggles();
   drawTrendChart();
@@ -607,11 +773,10 @@ function setChartMode(mode) {
 
 function getChronologicalData() {
   const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
-  // Odwracamy kolejność, żeby na wykresie czas płynął od lewej (najstarszy) do prawej (najnowszy)
   return hist.slice().reverse();
 }
 
-let cachedChartPoints = []; // Do obsługi kliknięcia/dotyku na wykresie
+let cachedChartPoints = [];
 
 function drawTrendChart() {
   const canvas = document.getElementById('trendChart');
@@ -624,268 +789,119 @@ function drawTrendChart() {
   canvas.height = height * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-
   ctx.clearRect(0, 0, width, height);
 
   const data = getChronologicalData();
   const activeSeries = SERIES_CONFIG.filter(s => s.active);
-
   renderTrendDeltas(data);
 
-  if (data.length === 0) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Brak zapisanych pomiarów w historii.', width / 2, height / 2 - 10);
-    ctx.font = '12px sans-serif';
-    ctx.fillText('Zapisz pomiar w Kalkulatorze lub kliknij "Wgraj przykładowe 6 pomiarów".', width / 2, height / 2 + 14);
-    return;
-  }
-
-  if (activeSeries.length === 0) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '600 13px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Zaznacz przynajmniej jeden parametr powyżej, aby narysować wykres.', width / 2, height / 2);
+  if (data.length === 0 || activeSeries.length === 0) {
+    ctx.fillStyle = '#94a3b8'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Brak zapisanych pomiarów w historii.', width / 2, height / 2);
     return;
   }
 
   const padL = 42, padR = 18, padT = 22, padB = 38;
   const plotW = width - padL - padR;
   const plotH = height - padT - padB;
-
-  // Wyznaczenie skali Y
-  let minY = 0;
   let maxY = 100;
 
   if (chartMode === 'raw') {
     let vals = [];
-    data.forEach(d => {
-      activeSeries.forEach(s => {
-        const v = parseFloat(d[s.key]);
-        if (!isNaN(v)) vals.push(v);
-      });
-    });
+    data.forEach(d => activeSeries.forEach(s => { const v = parseFloat(d[s.key]); if (!isNaN(v)) vals.push(v); }));
     maxY = vals.length > 0 ? Math.max(...vals) * 1.15 : 10;
     if (maxY === 0) maxY = 1;
   }
 
-  // Siatka pozioma
-  const gridSteps = 4;
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 1;
-  ctx.fillStyle = '#64748b';
-  ctx.font = '11px sans-serif';
-  ctx.textAlign = 'right';
-
-  for (let i = 0; i <= gridSteps; i++) {
-    const ratio = i / gridSteps;
-    const y = padT + plotH - ratio * plotH;
-    const val = minY + ratio * (maxY - minY);
-    ctx.beginPath();
-    ctx.moveTo(padL, y);
-    ctx.lineTo(width - padR, y);
-    ctx.stroke();
-
-    const label = chartMode === 'norm' ? Math.round(val) + '%' : (maxY <= 5 ? val.toFixed(2) : val.toFixed(1));
-    ctx.fillText(label, padL - 6, y + 4);
-  }
-
-  // Współrzędne X dla punktów czasowych
   const getX = (i) => data.length === 1 ? padL + plotW / 2 : padL + (i / (data.length - 1)) * plotW;
-
-  // Podświetlenie wybranego pomiaru (pionowa linia)
-  if (selectedPointIdx !== null && selectedPointIdx < data.length) {
-    const sx = getX(selectedPointIdx);
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.moveTo(sx, padT);
-    ctx.lineTo(sx, padT + plotH);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
   cachedChartPoints = data.map((d, i) => ({ x: getX(i), idx: i, item: d }));
 
-  // Rysowanie linii dla każdej zaznaczonej serii
   activeSeries.forEach(s => {
-    // Wyznaczenie max w danej serii dla trybu znormalizowanego %
     let seriesMax = s.maxRef;
     if (chartMode === 'norm') {
       const sVals = data.map(d => parseFloat(d[s.key]) || 0);
       seriesMax = Math.max(...sVals, 0.01) * 1.1;
     }
-
     const points = data.map((d, i) => {
       const rawVal = parseFloat(d[s.key]) || 0;
       const plotVal = chartMode === 'norm' ? (rawVal / seriesMax) * 100 : rawVal;
       const x = getX(i);
-      const y = padT + plotH - ((plotVal - minY) / (maxY - minY)) * plotH;
+      const y = padT + plotH - (plotVal / maxY) * plotH;
       return { x, y, rawVal };
     });
 
-    // Linia
-    ctx.strokeStyle = s.color;
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    points.forEach((p, i) => {
-      if (i === 0) ctx.moveTo(p.x, p.y);
-      else ctx.lineTo(p.x, p.y);
-    });
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5; ctx.beginPath();
+    points.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
     ctx.stroke();
-
-    // Punkty i wartości
-    points.forEach((p, i) => {
-      ctx.fillStyle = '#0b1120';
-      ctx.strokeStyle = s.color;
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, i === selectedPointIdx ? 5.5 : 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Etykieta wartości nad ostatnim punktem (lub wybranym)
-      if (i === data.length - 1 || i === selectedPointIdx) {
-        ctx.fillStyle = s.color;
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(p.rawVal, p.x, p.y - 8);
-      }
-    });
-  });
-
-  // Etykiety dat na osi X
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '10px sans-serif';
-  ctx.textAlign = 'center';
-  const stepX = Math.max(1, Math.ceil(data.length / 6));
-  data.forEach((d, i) => {
-    if (i % stepX === 0 || i === data.length - 1) {
-      const shortDate = (d.date || '').split(' ')[0];
-      ctx.fillText(shortDate, getX(i), height - 12);
-    }
   });
 }
-
-// Obsługa kliknięcia/dotyku na wykresie
-document.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('trendChart');
-  if (!canvas) return;
-
-  const handlePointer = (e) => {
-    if (cachedChartPoints.length === 0) return;
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const x = clientX - rect.left;
-
-    let closest = cachedChartPoints[0];
-    let minDist = Math.abs(x - closest.x);
-    cachedChartPoints.forEach(p => {
-      const dist = Math.abs(x - p.x);
-      if (dist < minDist) {
-        minDist = dist;
-        closest = p;
-      }
-    });
-
-    selectedPointIdx = closest.idx;
-    drawTrendChart();
-
-    const d = closest.item;
-    const prev = closest.idx > 0 ? cachedChartPoints[closest.idx - 1].item : null;
-    const activeSeries = SERIES_CONFIG.filter(s => s.active);
-
-    const details = activeSeries.map(s => {
-      const currVal = parseFloat(d[s.key]) || 0;
-      let diffHtml = '';
-      if (prev) {
-        const prevVal = parseFloat(prev[s.key]) || 0;
-        const diff = currVal - prevVal;
-        const sign = diff > 0 ? '+' : '';
-        const col = diff > 0 ? '#38bdf8' : (diff < 0 ? '#fb923c' : '#94a3b8');
-        diffHtml = ` <span style="color:${col};">(${sign}${diff.toFixed(2)})</span>`;
-      }
-      return `<span style="margin-right:10px;"><strong style="color:${s.color};">${s.label.split(' ')[0]}:</strong> ${currVal}${s.unit}${diffHtml}</span>`;
-    }).join(' ');
-
-    document.getElementById('chart_tooltip').innerHTML = `
-      <div style="font-weight:700; margin-bottom:4px; color:#e2e8f0;">📅 Pomiar z dnia: ${d.date} ${d.note ? ' — <em>' + d.note + '</em>' : ''}</div>
-      <div style="line-height:1.6;">${details}</div>
-    `;
-  };
-
-  canvas.addEventListener('click', handlePointer);
-  canvas.addEventListener('touchstart', handlePointer, { passive: true });
-});
 
 function renderTrendDeltas(data) {
   const container = document.getElementById('trend_deltas');
   if (!container) return;
-
   if (data.length < 2) {
-    container.innerHTML = `<div style="grid-column: span 2; color:var(--muted); font-size:0.78rem; padding:6px;">Zapisz co najmniej 2 pomiary, aby zobaczyć automatyczne wyliczenie wzrostu lub spadku każdego parametru.</div>`;
+    container.innerHTML = `<div style="grid-column: span 2; color:var(--muted); font-size:0.78rem; padding:6px;">Zapisz co najmniej 2 pomiary, aby zobaczyć bilans zmian.</div>`;
     return;
   }
-
   const last = data[data.length - 1];
   const prev = data[data.length - 2];
-
   container.innerHTML = SERIES_CONFIG.map(s => {
     const vLast = parseFloat(last[s.key]) || 0;
     const vPrev = parseFloat(prev[s.key]) || 0;
     const diff = vLast - vPrev;
-    let arrow = '▬';
-    let cls = 'delta-flat';
-    let sign = '';
+    let arrow = '▬', cls = 'delta-flat', sign = '';
     if (diff > 0.001) { arrow = '▲ Wzrost'; cls = 'delta-up'; sign = '+'; }
     else if (diff < -0.001) { arrow = '▼ Spadek'; cls = 'delta-down'; }
-
-    const formattedDiff = Math.abs(diff) < 0.001 ? '0.0' : sign + (s.key === 'fe' || s.key === 'po4' || s.key === 'ph' ? diff.toFixed(2) : diff.toFixed(1));
-
-    return `
-      <div class="trend-box">
-        <div class="trend-name">
-          <span style="width:8px; height:8px; border-radius:50%; background:${s.color}; display:inline-block;"></span>
-          <span>${s.label}</span>
-        </div>
-        <div class="trend-delta ${cls}">
-          ${arrow} ${formattedDiff} ${s.unit}
-        </div>
-      </div>
-    `;
+    return `<div class="trend-box"><div class="trend-name"><span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block;"></span><span>${s.label}</span></div><div class="trend-delta ${cls}">${arrow} ${sign}${diff.toFixed(1)} ${s.unit}</div></div>`;
   }).join('');
 }
 
 function loadDemoHistory() {
   const demo = [
-    { date: '20.10 18:00', no3: 20.0, po4: 1.50, fe: 0.40, ph: 6.65, kh: 5.0, gh: 8.0, co2: 33.6, redfield: 9.2,  note: 'Po podmianie i dawce makro' },
-    { date: '17.10 19:15', no3: 12.0, po4: 0.80, fe: 0.15, ph: 6.75, kh: 5.0, gh: 8.0, co2: 26.7, redfield: 10.4, note: 'Przed podmianą (konsumpcja roślin)' },
-    { date: '14.10 18:30', no3: 16.0, po4: 1.10, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 10.1, note: 'Korekta Fe i PO4' },
-    { date: '11.10 20:00', no3: 18.0, po4: 0.60, fe: 0.10, ph: 6.70, kh: 5.5, gh: 8.5, co2: 32.9, redfield: 20.8, note: 'Spadek fosforu i żelaza' },
-    { date: '08.10 17:45', no3: 15.0, po4: 1.00, fe: 0.30, ph: 6.68, kh: 5.0, gh: 8.0, co2: 31.3, redfield: 10.4, note: 'Stabilnie po przycince' },
-    { date: '05.10 18:00', no3: 10.0, po4: 0.90, fe: 0.20, ph: 6.72, kh: 5.0, gh: 8.0, co2: 28.6, redfield: 7.7,  note: 'Start pomiarów' }
+    { date: '20.10 18:00', no3: 20.0, po4: 1.50, fe: 0.40, ph: 6.65, kh: 5.0, gh: 8.0, co2: 33.6, redfield: 9.2, note: 'Demo 1' },
+    { date: '17.10 19:15', no3: 12.0, po4: 0.80, fe: 0.15, ph: 6.75, kh: 5.0, gh: 8.0, co2: 26.7, redfield: 10.4, note: 'Demo 2' }
   ];
   localStorage.setItem('aqualab_history', JSON.stringify(demo));
-  selectedPointIdx = null;
   renderHistory();
   drawTrendChart();
 }
 
-// Rejestracja Service Workera dla PWA (działanie offline)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
+// EKSPORT / IMPORT
+function exportBackup() {
+  const hist = localStorage.getItem('aqualab_history') || '[]';
+  const blob = new Blob([hist], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `AquaLab_Kopia_Zapasowa.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
-window.addEventListener('resize', () => {
-  if (document.getElementById('tab-chart').classList.contains('active')) {
-    drawTrendChart();
-  }
-});
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error();
+      if (confirm(`Zaimportować ${data.length} pomiarów? (Zastąpi obecną historię)`)) {
+        localStorage.setItem('aqualab_history', JSON.stringify(data));
+        renderHistory();
+        drawTrendChart();
+        alert('Zaimportowano pomyślnie!');
+      }
+    } catch (err) { alert('Błąd pliku kopii zapasowej.'); }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
 
 window.onload = () => {
+  loadGoalsToInputs();
   renderSeriesToggles();
   calculateAll();
   renderHistory();
@@ -893,9 +909,7 @@ window.onload = () => {
 </script>
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
 }
 </script>
 </body>
