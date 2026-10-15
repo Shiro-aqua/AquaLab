@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<link rel="manifest" href="manifest.json">
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
@@ -889,6 +890,13 @@ window.onload = () => {
   calculateAll();
   renderHistory();
 };
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
