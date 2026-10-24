@@ -3,109 +3,714 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#030712">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<title>AquaLab - Kalkulator Akwarystyczny</title>
+<title>AquaLab — Nowoczesny Kalkulator Akwarystyczny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --card-border: #334155;
-    --text: #f8fafc;
-    --muted: #94a3b8;
+    --bg-base: #030712;
+    --bg-surface: #0b1329;
+    --bg-card: rgba(15, 23, 42, 0.72);
+    --card-border: rgba(51, 65, 85, 0.5);
+    --card-border-glow: rgba(16, 185, 129, 0.3);
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    
     --accent: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.25);
+    --accent-cyan: #06b6d4;
     --accent-blue: #3b82f6;
-    --ok-bg: rgba(16, 185, 129, 0.15);
+    
+    --ok-bg: rgba(16, 185, 129, 0.12);
     --ok-text: #34d399;
-    --warn-bg: rgba(245, 158, 11, 0.15);
+    --ok-border: rgba(52, 211, 153, 0.3);
+    
+    --warn-bg: rgba(245, 158, 11, 0.12);
     --warn-text: #fbbf24;
-    --err-bg: rgba(239, 68, 68, 0.15);
+    --warn-border: rgba(251, 191, 36, 0.3);
+    
+    --err-bg: rgba(239, 68, 68, 0.12);
     --err-text: #f87171;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { background-color: var(--bg); color: var(--text); padding: 14px; padding-bottom: 80px; max-width: 600px; margin: 0 auto; }
-  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); }
-  header h1 { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #34d399; }
-  header span { font-size: 0.78rem; color: var(--muted); }
-  .tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--card); padding: 5px; border-radius: 12px; border: 1px solid var(--card-border); }
-  .tab-btn { flex: 1; padding: 10px 4px; border: none; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-  .tab-btn.active { background: var(--accent); color: #052e16; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
-  .card-title { font-size: 0.88rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .param-box { background: rgba(15, 23, 42, 0.65); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; }
-  .param-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .param-label { font-size: 0.85rem; font-weight: 700; color: #e2e8f0; }
-  .param-unit { font-size: 0.72rem; color: var(--muted); }
-  .param-controls { display: flex; align-items: center; gap: 8px; }
-  .param-input { width: 72px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 8px; padding: 6px 8px; font-size: 1rem; font-weight: 700; text-align: center; }
-  .param-slider { flex: 1; accent-color: var(--accent); height: 6px; width: 100%; margin-top: 8px; }
-  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .kpi-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; position: relative; overflow: hidden; }
-  .kpi-title { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
-  .kpi-val { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; }
-  .badge { display: inline-block; padding: 3px 8px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; }
-  .badge.ok { background: var(--ok-bg); color: var(--ok-text); }
-  .badge.warn { background: var(--warn-bg); color: var(--warn-text); }
-  .badge.err { background: var(--err-bg); color: var(--err-text); }
-  .diag-list { display: flex; flex-direction: column; gap: 10px; }
-  .diag-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 12px; }
-  .diag-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px; }
-  .diag-name { font-weight: 700; font-size: 0.88rem; }
-  .diag-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.35; }
-  .btn-main { width: 100%; padding: 13px; border: none; border-radius: 12px; background: var(--accent); color: #052e16; font-weight: 800; font-size: 0.95rem; cursor: pointer; margin-top: 6px; }
-  .btn-secondary { padding: 7px 11px; border: 1px solid var(--card-border); border-radius: 8px; background: #0f172a; color: var(--text); font-size: 0.76rem; cursor: pointer; font-weight: 600; }
-  .btn-secondary.active-mode { border-color: var(--accent); color: var(--ok-text); background: rgba(16, 185, 129, 0.12); }
-  .history-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-  .history-head { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 6px; }
-  .history-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.8rem; }
-  .history-grid div strong { color: #38bdf8; }
-  .note-input { width: 100%; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 8px; padding: 10px; font-size: 0.85rem; margin-top: 8px; margin-bottom: 8px; }
+    --err-border: rgba(248, 113, 113, 0.3);
 
-  /* WYKRESY */
-  .series-toggles { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
-  .series-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 99px; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--card-border); background: #0f172a; color: var(--muted); cursor: pointer; user-select: none; transition: 0.15s; }
-  .series-chip .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; opacity: 0.35; }
-  .series-chip.active { color: #fff; border-color: #64748b; background: rgba(30, 41, 59, 0.95); }
-  .series-chip.active .dot { opacity: 1; box-shadow: 0 0 6px currentColor; }
-  .chart-wrap { position: relative; width: 100%; background: #0b1120; border: 1px solid var(--card-border); border-radius: 12px; padding: 8px; overflow: hidden; }
-  canvas#trendChart { width: 100%; height: 300px; display: block; touch-action: pan-y; cursor: crosshair; }
-  .chart-tooltip { margin-top: 10px; background: rgba(15, 23, 42, 0.75); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 12px; font-size: 0.8rem; line-height: 1.45; }
-  .trend-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-  .trend-box { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--card-border); border-radius: 10px; padding: 9px 11px; display: flex; justify-content: space-between; align-items: center; }
-  .trend-name { font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-  .trend-delta { font-size: 0.8rem; font-weight: 800; }
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    
+    --transition-smooth: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    background-color: var(--bg-base);
+    background-image: 
+      radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 60%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    padding: 16px;
+    padding-bottom: 90px;
+    max-width: 620px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    animation: fadeInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+    animation: pulseGlow 3s infinite ease-in-out;
+  }
+
+  header h1 { font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+  header span { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; display: block; margin-top: 2px; }
+
+  /* NAVIGATION TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    background: rgba(11, 19, 41, 0.85);
+    backdrop-filter: blur(12px);
+    padding: 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow-x: auto;
+    scrollbar-width: none;
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+    opacity: 0;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #030712;
+    font-weight: 700;
+    box-shadow: 0 6px 20px -4px rgba(16, 185, 129, 0.5);
+    transform: translateY(-1px);
+  }
+
+  /* PANELS & ANIMATIONS */
+  .panel { display: none; opacity: 0; transform: translateY(10px); }
+  .panel.active {
+    display: block;
+    animation: panelEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes panelEnter { to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInDown { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 8px 28px 0px rgba(16, 185, 129, 0.7); }
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 16px 40px -12px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  }
+
+  .card-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* PARAM GRID & SLIDERS */
+  .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  
+  .param-box {
+    background: rgba(3, 7, 18, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    transition: var(--transition-smooth);
+  }
+  .param-box:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(3, 7, 18, 0.7);
+  }
+
+  .param-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .param-label { font-size: 0.82rem; font-weight: 700; color: #f1f5f9; }
+  .param-unit { font-size: 0.7rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 6px; }
+  
+  .param-controls { display: flex; align-items: center; gap: 10px; }
+  
+  .param-input {
+    width: 76px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #475569;
+    color: #fff;
+    border-radius: 10px;
+    padding: 8px 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    transition: var(--transition-smooth);
+  }
+  .param-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: #030712;
+  }
+
+  .param-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #1e293b;
+    border-radius: 3px;
+    outline: none;
+    accent-color: var(--accent);
+  }
+  .param-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 12px var(--accent);
+    transition: transform 0.1s ease;
+  }
+  .param-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  /* KPI GRID */
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  
+  .kpi-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+  }
+  .kpi-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+  .kpi-title { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.02em; }
+  .kpi-val { font-size: 1.35rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; color: #fff; letter-spacing: -0.03em; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+  }
+  .badge.ok { background: var(--ok-bg); color: var(--ok-text); border-color: var(--ok-border); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+  .badge.err { background: var(--err-bg); color: var(--err-text); border-color: var(--err-border); }
+
+  /* ADVISOR & DIAG */
+  .diag-list { display: flex; flex-direction: column; gap: 10px; }
+  .diag-item {
+    background: rgba(3, 7, 18, 0.6);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    transition: var(--transition-smooth);
+  }
+  .diag-item:hover { border-color: rgba(255,255,255,0.12); background: rgba(3, 7, 18, 0.8); }
+  .diag-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px; }
+  .diag-name { font-weight: 700; font-size: 0.85rem; color: #f1f5f9; }
+  .diag-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.45; }
+
+  /* BUTTONS */
+  .btn-main {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #030712;
+    font-weight: 800;
+    font-size: 0.92rem;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 8px 25px -6px rgba(16, 185, 129, 0.5);
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -6px rgba(16, 185, 129, 0.7); }
+
+  .btn-secondary {
+    padding: 7px 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.85);
+    color: var(--text-main);
+    font-size: 0.74rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-secondary:hover { background: rgba(30, 41, 59, 0.95); border-color: rgba(255,255,255,0.22); }
+  .btn-secondary.active-mode {
+    border-color: var(--accent);
+    color: var(--ok-text);
+    background: rgba(16, 185, 129, 0.15);
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.22);
+  }
+
+  .history-item {
+    background: rgba(3, 7, 18, 0.6);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: var(--transition-smooth);
+  }
+  .history-item:hover { border-color: rgba(16, 185, 129, 0.3); }
+  .history-head { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid rgba(51, 65, 85, 0.3); padding-bottom: 8px; }
+  .history-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; }
+  .history-grid div strong { color: #38bdf8; }
+
+  .note-input {
+    width: 100%;
+    background: rgba(3, 7, 18, 0.8);
+    border: 1px solid #475569;
+    color: #fff;
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-size: 0.85rem;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    transition: var(--transition-smooth);
+  }
+  .note-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+  /* =========================================================
+     NOWA ZAKŁADKA WYKRESÓW (Zbudowana od podstaw)
+     ========================================================= */
+  .chart-mode-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: rgba(3, 7, 18, 0.65);
+    padding: 5px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    margin-bottom: 14px;
+  }
+  .chart-mode-btn {
+    padding: 10px 8px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-align: center;
+  }
+  .chart-mode-btn.active {
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+  }
+
+  .chart-param-pills {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    scrollbar-width: none;
+  }
+  .chart-param-pills::-webkit-scrollbar { display: none; }
+
+  .param-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 13px;
+    border-radius: 12px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    border: 1px solid rgba(51, 65, 85, 0.55);
+    background: rgba(3, 7, 18, 0.6);
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--transition-smooth);
+    user-select: none;
+  }
+  .param-pill .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    opacity: 0.45;
+    transition: var(--transition-smooth);
+  }
+  .param-pill.active {
+    color: #fff;
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 6px 16px -4px rgba(0,0,0,0.5);
+    transform: translateY(-1px);
+  }
+  .param-pill.active .dot {
+    opacity: 1;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  /* Pasek statystyk wybranego parametru */
+  .focus-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stat-mini-card {
+    background: rgba(3, 7, 18, 0.55);
+    border: 1px solid rgba(51, 65, 85, 0.45);
+    border-radius: 12px;
+    padding: 9px 10px;
+    text-align: center;
+  }
+  .stat-mini-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .stat-mini-val {
+    font-size: 0.92rem;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+  }
+
+  /* Płótno wykresu + nawigacja zakresów */
+  .chart-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .range-group {
+    display: inline-flex;
+    background: rgba(3, 7, 18, 0.65);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+  .range-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 9px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+  .range-btn.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(180deg, rgba(3, 7, 18, 0.9) 0%, rgba(11, 19, 41, 0.75) 100%);
+    border: 1px solid rgba(51, 65, 85, 0.6);
+    border-radius: var(--radius-md);
+    padding: 12px 10px 8px 6px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 14px rgba(0,0,0,0.6);
+  }
+  canvas#trendChart {
+    width: 100%;
+    height: 290px;
+    display: block;
+    touch-action: pan-y;
+    cursor: crosshair;
+  }
+
+  .chart-legend-hint {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .goal-zone-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .goal-zone-box {
+    width: 12px;
+    height: 8px;
+    border-radius: 3px;
+    background: rgba(16, 185, 129, 0.22);
+    border: 1px dashed #34d399;
+    display: inline-block;
+  }
+
+  /* Inspektor wybranego pomiaru */
+  .inspector-card {
+    margin-top: 14px;
+    background: rgba(3, 7, 18, 0.75);
+    border: 1px solid rgba(51, 65, 85, 0.65);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    transition: var(--transition-smooth);
+  }
+  .inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  }
+  .inspector-nav-btn {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid var(--card-border);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+  }
+  .inspector-nav-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--ok-text);
+  }
+  .inspector-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .inspector-date-title {
+    text-align: center;
+  }
+  .inspector-date-title strong {
+    font-size: 0.88rem;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    display: block;
+  }
+  .inspector-date-title span {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .inspector-params-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .insp-cell {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 10px;
+    padding: 8px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+  .insp-cell:hover { border-color: rgba(255,255,255,0.2); }
+  .insp-cell.focused {
+    border-color: var(--accent);
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .insp-name { font-size: 0.66rem; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
+  .insp-val { font-size: 0.86rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: #fff; }
+  .insp-diff { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-top: 2px; }
+
+  .inspector-note {
+    margin-top: 10px;
+    padding: 9px 12px;
+    background: rgba(16, 185, 129, 0.07);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: #e2e8f0;
+  }
+
+  /* Oś czasu (Timeline logów pod wykresem) */
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .timeline-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 13px;
+    background: rgba(3, 7, 18, 0.5);
+    border: 1px solid rgba(51, 65, 85, 0.4);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    gap: 10px;
+  }
+  .timeline-row:hover {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .timeline-row.selected {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+  }
+  .tl-left { display: flex; flex-direction: column; gap: 3px; min-width: 90px; }
+  .tl-date { font-size: 0.78rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #fff; }
+  .tl-note { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  .tl-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+  .tl-pill { background: rgba(15, 23, 42, 0.85); padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(51, 65, 85, 0.45); }
+
   .delta-up { color: #38bdf8; }
   .delta-down { color: #fb923c; }
-  .delta-flat { color: var(--muted); }
+  .delta-flat { color: var(--text-muted); }
 
-  @media (max-width: 420px) {
+  @media (max-width: 460px) {
     .param-grid { grid-template-columns: 1fr; }
-    .trend-grid { grid-template-columns: 1fr; }
+    .focus-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .inspector-params-grid { grid-template-columns: repeat(2, 1fr); }
+    body { padding: 10px; padding-bottom: 80px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1>💧AquaLab</h1>
-    <span>Kalkulator i dziennik akwarium roślinnego</span>
+  <div class="logo-area">
+    <div class="logo-icon">💧</div>
+    <div>
+      <h1>AquaLab</h1>
+      <span>Professional Aquascaping Studio</span>
+    </div>
   </div>
-  <button class="btn-secondary" onclick="resetDefaults()">Reset</button>
+  <button class="btn-secondary" onclick="resetDefaults()">↺ Reset</button>
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('calc', this)">Kalkulator</button>
-  <button class="tab-btn" onclick="switchTab('chart', this)">Wykresy</button>
-  <button class="tab-btn" onclick="switchTab('dose', this)">Dawkowanie</button>
-  <button class="tab-btn" onclick="switchTab('goals', this)">Cele</button>
-  <button class="tab-btn" onclick="switchTab('hist', this)">Historia (<span id="histCount">0</span>)</button>
+  <button class="tab-btn active" onclick="switchTab('calc', this)">🧪 Kalkulator</button>
+  <button class="tab-btn" onclick="switchTab('chart', this)">📈 Wykresy</button>
+  <button class="tab-btn" onclick="switchTab('dose', this)">⚖️ Korekta</button>
+  <button class="tab-btn" onclick="switchTab('goals', this)">🎯 Cele</button>
+  <button class="tab-btn" onclick="switchTab('hist', this)">📂 Historia (<span id="histCount">0</span>)</button>
 </div>
 
 <!-- TAB 1: KALKULATOR -->
@@ -113,7 +718,7 @@
   <div class="card">
     <div class="card-title">
       <span>Wyniki testów kropelkowych</span>
-      <span style="font-size:0.72rem; text-transform:none;">Zmieniaj suwakiem lub wpisz</span>
+      <span style="font-size:0.7rem; text-transform:none; color:var(--text-muted);">Suwak lub pole tekstowe</span>
     </div>
     <div class="param-grid">
       <div class="param-box">
@@ -123,7 +728,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_no3" class="param-input" step="0.5" min="0" max="100" value="15" oninput="sync('no3', this.value, this)">
-          <input type="range" id="sl_no3" class="param-slider" step="0.5" min="0" max="60" value="15" oninput="sync('no3', this.value, this)">
+          <input type="range" id="sl_no3" class="param-slider" step="0.5" min="0" max="100" value="15" oninput="sync('no3', this.value, this)">
         </div>
       </div>
 
@@ -134,7 +739,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_po4" class="param-input" step="0.05" min="0" max="10" value="1.0" oninput="sync('po4', this.value, this)">
-          <input type="range" id="sl_po4" class="param-slider" step="0.05" min="0" max="4" value="1.0" oninput="sync('po4', this.value, this)">
+          <input type="range" id="sl_po4" class="param-slider" step="0.05" min="0" max="10" value="1.0" oninput="sync('po4', this.value, this)">
         </div>
       </div>
 
@@ -145,7 +750,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_fe" class="param-input" step="0.05" min="0" max="3" value="0.25" oninput="sync('fe', this.value, this)">
-          <input type="range" id="sl_fe" class="param-slider" step="0.05" min="0" max="1.2" value="0.25" oninput="sync('fe', this.value, this)">
+          <input type="range" id="sl_fe" class="param-slider" step="0.05" min="0" max="3" value="0.25" oninput="sync('fe', this.value, this)">
         </div>
       </div>
 
@@ -156,7 +761,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_ph" class="param-input" step="0.05" min="5.0" max="8.5" value="6.70" oninput="sync('ph', this.value, this)">
-          <input type="range" id="sl_ph" class="param-slider" step="0.05" min="5.5" max="8.0" value="6.70" oninput="sync('ph', this.value, this)">
+          <input type="range" id="sl_ph" class="param-slider" step="0.05" min="5.0" max="8.5" value="6.70" oninput="sync('ph', this.value, this)">
         </div>
       </div>
 
@@ -167,7 +772,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_kh" class="param-input" step="0.5" min="0" max="25" value="5.0" oninput="sync('kh', this.value, this)">
-          <input type="range" id="sl_kh" class="param-slider" step="0.5" min="0" max="18" value="5.0" oninput="sync('kh', this.value, this)">
+          <input type="range" id="sl_kh" class="param-slider" step="0.5" min="0" max="25" value="5.0" oninput="sync('kh', this.value, this)">
         </div>
       </div>
 
@@ -178,7 +783,7 @@
         </div>
         <div class="param-controls">
           <input type="number" id="in_gh" class="param-input" step="0.5" min="0" max="30" value="8.0" oninput="sync('gh', this.value, this)">
-          <input type="range" id="sl_gh" class="param-slider" step="0.5" min="0" max="22" value="8.0" oninput="sync('gh', this.value, this)">
+          <input type="range" id="sl_gh" class="param-slider" step="0.5" min="0" max="30" value="8.0" oninput="sync('gh', this.value, this)">
         </div>
       </div>
     </div>
@@ -193,7 +798,7 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Redfield Atomowy (N:P)</div>
-      <div class="kpi-val" id="out_redfield">10.4 : 1</div>
+      <div class="kpi-val" id="out_redfield">23.0 : 1</div>
       <span class="badge ok" id="badge_redfield">Strefa bez glonów</span>
     </div>
     <div class="kpi-card">
@@ -204,11 +809,11 @@
     <div class="kpi-card">
       <div class="kpi-title">Bilans PO₄ : Fe</div>
       <div class="kpi-val" id="out_pofe">4.0 : 1</div>
-      <span class="badge ok" id="badge_pofe">Optymalny (2:1 - 5:1)</span>
+      <span class="badge ok" id="badge_pofe">Optymalny (2:1 - 6:1)</span>
     </div>
   </div>
 
-  <!-- LUDZKI PANEL DORADCY AKWARYSTYCZNEGO -->
+  <!-- DORADCA AKWARYSTYCZNY -->
   <div class="card">
     <div class="card-title">
       <span>Doradca Akwarystyczny (Diagnoza)</span>
@@ -216,71 +821,184 @@
     </div>
     <div class="diag-list" id="advisor_panels"></div>
 
-    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. po podmianie 30%, przycięta Rotala)..." style="margin-top:14px;">
+    <input type="text" id="note_input" class="note-input" placeholder="Notatka do pomiaru (np. podmiana 30%, przycinka)...">
     <button class="btn-main" onclick="saveMeasurement()">💾 Zapisz pomiar w historii</button>
   </div>
 </div>
 
-<!-- TAB 2: WYKRESY LINIOWE TRENDÓW -->
+<!-- TAB 2: CAŁKOWICIE PRZEBUDOWANA ZAKŁADKA WYKRESY I ANALIZA HISTORII -->
 <div id="tab-chart" class="panel">
   <div class="card">
     <div class="card-title">
-      <span>Wykres wzrostu i spadku parametrów</span>
-      <div style="display:flex; gap:6px;">
-        <button class="btn-secondary active-mode" id="mode_raw" onclick="setChartMode('raw')">Wartości (mg/l)</button>
-        <button class="btn-secondary" id="mode_norm" onclick="setChartMode('norm')">Skala % (0-100%)</button>
+      <span>Wizualizacja historii pomiarów</span>
+      <button class="btn-secondary" onclick="loadDemoHistory()">📥 Wgraj 6 pomiarów demo</button>
+    </div>
+
+    <!-- Przełącznik głównego trybu wykresu -->
+    <div class="chart-mode-bar">
+      <button class="chart-mode-btn active" id="view_single" onclick="setChartViewMode('single')">
+        🎯 Analiza parametru (ze strefą celu)
+      </button>
+      <button class="chart-mode-btn" id="view_multi" onclick="setChartViewMode('multi')">
+        📊 Porównanie wielu (Skala 0-100%)
+      </button>
+    </div>
+
+    <!-- Pigułki wyboru parametrów -->
+    <div class="chart-param-pills" id="series_toggles"></div>
+
+    <!-- Statystyki wybranego parametru (widoczne w trybie pojedynczym) -->
+    <div class="focus-stats-grid" id="focus_stats_bar"></div>
+
+    <!-- Pasek narzędzi nad płótnem: zakres pomiarów -->
+    <div class="chart-toolbar">
+      <span id="chart_subtitle" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">
+        Wykres przebiegu w czasie
+      </span>
+      <div class="range-group">
+        <button class="range-btn" id="rng_5" onclick="setChartRange(5)">Ostatnie 5</button>
+        <button class="range-btn" id="rng_10" onclick="setChartRange(10)">Ostatnie 10</button>
+        <button class="range-btn active" id="rng_0" onclick="setChartRange(0)">Wszystkie</button>
       </div>
     </div>
-    <div style="font-size:0.76rem; color:var(--muted); margin-bottom:10px;">
-      Kliknij parametr poniżej, aby <strong>zaznaczyć lub odznaczyć</strong> go na wspólnym wykresie. Tryb <em>Skala %</em> ułatwia porównanie małego Fe (0.25) z dużym NO₃ (15) na jednym ekranie.
-    </div>
 
-    <div class="series-toggles" id="series_toggles"></div>
-
-    <div style="display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;">
-      <button class="btn-secondary" onclick="toggleAllSeries(true)">Zaznacz wszystkie</button>
-      <button class="btn-secondary" onclick="toggleAllSeries(false)">Tylko Makro + Fe</button>
-      <button class="btn-secondary" onclick="loadDemoHistory()" style="margin-left:auto;">Wgraj 6 pomiarów demo</button>
-    </div>
-
+    <!-- Główne płótno wykresu -->
     <div class="chart-wrap">
-      <canvas id="trendChart" width="540" height="300"></canvas>
+      <canvas id="trendChart" width="560" height="290"></canvas>
     </div>
 
-    <div class="chart-tooltip" id="chart_tooltip">
-      Dotknij dowolnego punktu na wykresie, aby sprawdzić dokładne wartości z danego dnia.
+    <div class="chart-legend-hint" id="chart_legend_hint">
+      <div class="goal-zone-indicator" id="goal_zone_legend">
+        <span class="goal-zone-box"></span>
+        <span>Zielone pasmo = Twój docelowy zakres z zakładki „Cele”</span>
+      </div>
+      <span>👆 Dotknij punktu lub użyj strzałek poniżej</span>
     </div>
 
-    <div class="card-title" style="margin-top:16px; margin-bottom:6px;">
-      <span>Bilans zmian (Ostatni pomiar vs poprzedni)</span>
+    <!-- Interaktywny Inspektor Pomiaru (karta ze strzałkami poprzedni/następny) -->
+    <div class="inspector-card" id="inspector_card"></div>
+  </div>
+
+  <!-- Karta Osi Czasu (szybki podgląd wszystkich pomiarów pod wykresem) -->
+  <div class="card">
+    <div class="card-title">
+      <span>Oś czasu pomiarów (Kliknij, aby zbadać na wykresie)</span>
     </div>
-    <div class="trend-grid" id="trend_deltas"></div>
+    <div class="timeline-list" id="chart_timeline_list"></div>
   </div>
 </div>
 
-<!-- TAB 3: KALKULATOR KOREKTY NAWOŻENIA -->
+<!-- TAB 3: KALKULATOR KOREKTY NAWOŻENIA (PEŁNA SYNCHRONIZACJA) -->
 <div id="tab-dose" class="panel">
   <div class="card">
-    <div class="card-title">Ile brakuje do docelowych poziomów?</div>
-    <div class="param-grid" style="margin-bottom:12px;">
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Litraż netto (L)</span></div>
-        <input type="number" id="tank_vol" class="param-input" style="width:100%;" value="160" oninput="saveDosingConfig()">
+    <div class="card-title">
+      <span>1. Skąd pobrać obecne parametry wody?</span>
+      <span class="badge ok" id="dose_source_badge">Z suwaków kalkulatora</span>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+      <button class="btn-secondary active-mode" id="btn_src_calc" onclick="setDoseSource('calc')" style="flex:1; justify-content:center;">
+        🎛️ Z suwaków Kalkulatora
+      </button>
+      <button class="btn-secondary" id="btn_src_hist" onclick="setDoseSource('hist')" style="flex:1; justify-content:center;">
+        🕒 Z ostatniego zapisu Historii
+      </button>
+    </div>
+
+    <!-- Podgląd aktualnych wartości używanych do obliczeń (z możliwością szybkiej zmiany) -->
+    <div style="background:rgba(3,7,18,0.65); border:1px solid var(--card-border); border-radius:12px; padding:10px 12px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Aktualny poziom w wodzie (mg/l) — możesz edytować:</span>
+        <span id="dose_hist_date" style="font-size:0.7rem; color:#38bdf8; font-family:'JetBrains Mono',monospace;"></span>
       </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Cel NO₃ (mg/l)</span></div>
-        <input type="number" id="target_no3" class="param-input" style="width:100%;" value="15" oninput="saveDosingConfig()">
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Cel PO₄ (mg/l)</span></div>
-        <input type="number" id="target_po4" class="param-input" style="width:100%;" value="1.2" step="0.1" oninput="saveDosingConfig()">
-      </div>
-      <div class="param-box">
-        <div class="param-header"><span class="param-label">Cel Fe (mg/l)</span></div>
-        <input type="number" id="target_fe" class="param-input" style="width:100%;" value="0.3" step="0.05" oninput="saveDosingConfig()">
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+        <div>
+          <div style="font-size:0.7rem; color:#38bdf8; font-weight:700; margin-bottom:4px;">Obecne NO₃</div>
+          <input type="number" id="dose_cur_no3" class="param-input" style="width:100%; padding:6px;" step="0.5" min="0" max="100" oninput="syncFromDosingCurrent('no3', this.value)">
+        </div>
+        <div>
+          <div style="font-size:0.7rem; color:#a855f7; font-weight:700; margin-bottom:4px;">Obecne PO₄</div>
+          <input type="number" id="dose_cur_po4" class="param-input" style="width:100%; padding:6px;" step="0.05" min="0" max="10" oninput="syncFromDosingCurrent('po4', this.value)">
+        </div>
+        <div>
+          <div style="font-size:0.7rem; color:#f97316; font-weight:700; margin-bottom:4px;">Obecne Fe</div>
+          <input type="number" id="dose_cur_fe" class="param-input" style="width:100%; padding:6px;" step="0.05" min="0" max="3" oninput="syncFromDosingCurrent('fe', this.value)">
+        </div>
       </div>
     </div>
+
+    <div class="card-title">
+      <span>2. Litraż i docelowe stężenia</span>
+      <button class="btn-secondary" onclick="syncTargetsFromGoals()" title="Pobierz środki zakresów z zakładki Cele">
+        🎯 Pobierz z zakładki „Cele”
+      </button>
+    </div>
+
+    <div class="param-grid" style="margin-bottom:14px;">
+      <div class="param-box">
+        <div class="param-header">
+          <span class="param-label">Litraż netto</span>
+          <span class="param-unit">Litrów</span>
+        </div>
+        <input type="number" id="tank_vol" class="param-input" style="width:100%;" min="1" max="2000" value="160" oninput="saveDosingConfig()">
+      </div>
+      <div class="param-box">
+        <div class="param-header">
+          <span class="param-label">Cel NO₃</span>
+          <span class="param-unit" id="goal_hint_no3">mg/l</span>
+        </div>
+        <input type="number" id="target_no3" class="param-input" style="width:100%;" min="0" max="100" step="0.5" value="15" oninput="saveDosingConfig()">
+      </div>
+      <div class="param-box">
+        <div class="param-header">
+          <span class="param-label">Cel PO₄</span>
+          <span class="param-unit" id="goal_hint_po4">mg/l</span>
+        </div>
+        <input type="number" id="target_po4" class="param-input" style="width:100%;" min="0" max="10" step="0.05" value="1.2" oninput="saveDosingConfig()">
+      </div>
+      <div class="param-box">
+        <div class="param-header">
+          <span class="param-label">Cel Fe</span>
+          <span class="param-unit" id="goal_hint_fe">mg/l</span>
+        </div>
+        <input type="number" id="target_fe" class="param-input" style="width:100%;" min="0" max="3" step="0.05" value="0.3" oninput="saveDosingConfig()">
+      </div>
+    </div>
+
+    <!-- Konfiguracja mocy posiadanych nawozów płynnych (ile ml / kliknięć podać) -->
+    <details style="background:rgba(3,7,18,0.5); border:1px solid var(--card-border); border-radius:12px; padding:10px 12px; margin-bottom:16px;">
+      <summary style="font-size:0.76rem; font-weight:700; color:#e2e8f0; cursor:pointer; user-select:none;">
+        🧪 Konfiguracja Twoich nawozów płynnych (przelicznik na ml i naciśnięcia pompki)
+      </summary>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:8px; margin-bottom:10px; line-height:1.4;">
+        Podaj o ile <strong>mg/l (ppm) w 100 litrach wody</strong> podnosi parametr <strong>1 ml</strong> Twojego nawozu (standardowo na etykiecie np. Easy-Life, Aqua Art, QualDrop, sole KNO₃/KH₂PO₄):
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+        <div>
+          <div style="font-size:0.68rem; color:#38bdf8; font-weight:700; margin-bottom:4px;">Nawóz N (mg/l w 100L z 1ml)</div>
+          <input type="number" id="fert_rate_no3" class="param-input" style="width:100%; padding:6px; font-size:0.85rem;" step="0.1" min="0.05" value="1.0" oninput="saveDosingConfig()">
+        </div>
+        <div>
+          <div style="font-size:0.68rem; color:#a855f7; font-weight:700; margin-bottom:4px;">Nawóz P (mg/l w 100L z 1ml)</div>
+          <input type="number" id="fert_rate_po4" class="param-input" style="width:100%; padding:6px; font-size:0.85rem;" step="0.05" min="0.01" value="0.1" oninput="saveDosingConfig()">
+        </div>
+        <div>
+          <div style="font-size:0.68rem; color:#f97316; font-weight:700; margin-bottom:4px;">Nawóz Fe (mg/l w 100L z 1ml)</div>
+          <input type="number" id="fert_rate_fe" class="param-input" style="width:100%; padding:6px; font-size:0.85rem;" step="0.01" min="0.01" value="0.1" oninput="saveDosingConfig()">
+        </div>
+      </div>
+    </details>
+
+    <div class="card-title">
+      <span>3. Plan korekty (Niedobory / Nadmiary)</span>
+      <span id="dose_summary_badge" class="badge ok">W normie</span>
+    </div>
     <div class="diag-list" id="dosing_results"></div>
+
+    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+      <button class="btn-main" onclick="applyDosingToCalculator()" style="margin-top:0;">
+        ✅ Zastosuj korektę (Ustaw docelowe parametry w Kalkulatorze)
+      </button>
+    </div>
   </div>
 </div>
 
@@ -290,62 +1008,62 @@
     <div class="card-title">
       <span>Wybór stylu akwarium</span>
     </div>
-    <div style="display:flex; gap:8px; margin-bottom:10px;">
-      <button class="btn-secondary active-mode" id="btn_hightech" onclick="setAquariumMode('hightech')" style="flex:1; padding:10px;">⚡ High-Tech (z CO₂)</button>
-      <button class="btn-secondary" id="btn_lowtech" onclick="setAquariumMode('lowtech')" style="flex:1; padding:10px;">🌿 Low-Tech (bez CO₂)</button>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <button class="btn-secondary active-mode" id="btn_hightech" onclick="setAquariumMode('hightech')" style="flex:1; padding:12px; justify-content:center;">⚡ High-Tech</button>
+      <button class="btn-secondary" id="btn_lowtech" onclick="setAquariumMode('lowtech')" style="flex:1; padding:12px; justify-content:center;">🌿 Low-Tech</button>
     </div>
-    <div id="mode_info_text" style="font-size:0.76rem; color:#34d399; margin-bottom:14px; background:rgba(16,185,129,0.1); padding:8px; border-radius:8px;">
+    <div id="mode_info_text" style="font-size:0.75rem; color:#34d399; margin-bottom:16px; background:rgba(16,185,129,0.08); border:1px solid rgba(52,211,153,0.2); padding:10px; border-radius:10px; line-height:1.4;">
       ⚡ <strong>Tryb High-Tech:</strong> Intensywne oświetlenie, stałe dozowanie CO₂ (20-32 mg/l) i bogate nawożenie słupa wody.
     </div>
 
-    <div class="card-title" style="margin-top:10px;">
+    <div class="card-title" style="margin-top:14px;">
       <span>Własne zakresy docelowe</span>
-      <button class="btn-secondary" onclick="resetGoals()">Reset</button>
+      <button class="btn-secondary" onclick="resetGoals()">↺ Reset</button>
     </div>
-    <div style="font-size:0.76rem; color:var(--muted); margin-bottom:12px;">
-      Wartości optymalne podstawiają się automatycznie po wybraniu stylu. Możesz je w każdej chwili dostosować.
+    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px; line-height:1.4;">
+      Te zakresy są automatycznie rysowane jako <strong>zielona strefa docelowa</strong> na wykresach historii.
     </div>
     <div class="param-grid">
       <div class="param-box">
         <div class="param-header"><span class="param-label">NO₃ Min - Max</span><span class="param-unit">mg/l</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_no3_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
-          <input type="number" id="goal_no3_max" class="param-input" style="width:100%;" step="1" value="25" onchange="saveGoals()">
+          <input type="number" id="goal_no3_min" class="param-input" style="width:100%;" min="0" step="1" value="10" onchange="saveGoals()">
+          <input type="number" id="goal_no3_max" class="param-input" style="width:100%;" min="0" step="1" value="25" onchange="saveGoals()">
         </div>
       </div>
       <div class="param-box">
         <div class="param-header"><span class="param-label">PO₄ Min - Max</span><span class="param-unit">mg/l</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_po4_min" class="param-input" style="width:100%;" step="0.1" value="0.8" onchange="saveGoals()">
-          <input type="number" id="goal_po4_max" class="param-input" style="width:100%;" step="0.1" value="1.5" onchange="saveGoals()">
+          <input type="number" id="goal_po4_min" class="param-input" style="width:100%;" min="0" step="0.1" value="0.8" onchange="saveGoals()">
+          <input type="number" id="goal_po4_max" class="param-input" style="width:100%;" min="0" step="0.1" value="1.5" onchange="saveGoals()">
         </div>
       </div>
       <div class="param-box">
         <div class="param-header"><span class="param-label">Fe Min - Max</span><span class="param-unit">mg/l</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_fe_min" class="param-input" style="width:100%;" step="0.05" value="0.1" onchange="saveGoals()">
-          <input type="number" id="goal_fe_max" class="param-input" style="width:100%;" step="0.05" value="0.4" onchange="saveGoals()">
+          <input type="number" id="goal_fe_min" class="param-input" style="width:100%;" min="0" step="0.05" value="0.1" onchange="saveGoals()">
+          <input type="number" id="goal_fe_max" class="param-input" style="width:100%;" min="0" step="0.05" value="0.4" onchange="saveGoals()">
         </div>
       </div>
       <div class="param-box">
         <div class="param-header"><span class="param-label">CO₂ Min - Max</span><span class="param-unit">mg/l</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_co2_min" class="param-input" style="width:100%;" step="1" value="20" onchange="saveGoals()">
-          <input type="number" id="goal_co2_max" class="param-input" style="width:100%;" step="1" value="32" onchange="saveGoals()">
+          <input type="number" id="goal_co2_min" class="param-input" style="width:100%;" min="0" step="1" value="20" onchange="saveGoals()">
+          <input type="number" id="goal_co2_max" class="param-input" style="width:100%;" min="0" step="1" value="32" onchange="saveGoals()">
         </div>
       </div>
       <div class="param-box">
         <div class="param-header"><span class="param-label">pH Min - Max</span><span class="param-unit">pH</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_ph_min" class="param-input" style="width:100%;" step="0.05" value="6.4" onchange="saveGoals()">
-          <input type="number" id="goal_ph_max" class="param-input" style="width:100%;" step="0.05" value="7.0" onchange="saveGoals()">
+          <input type="number" id="goal_ph_min" class="param-input" style="width:100%;" min="4" max="9" step="0.05" value="6.4" onchange="saveGoals()">
+          <input type="number" id="goal_ph_max" class="param-input" style="width:100%;" min="4" max="9" step="0.05" value="7.0" onchange="saveGoals()">
         </div>
       </div>
       <div class="param-box">
-        <div class="param-header"><span class="param-label">Redfield N:P</span><span class="param-unit">zakres</span></div>
+        <div class="param-header"><span class="param-label">Redfield N:P</span><span class="param-unit">atomowy</span></div>
         <div style="display:flex; gap:6px;">
-          <input type="number" id="goal_np_min" class="param-input" style="width:100%;" step="1" value="10" onchange="saveGoals()">
-          <input type="number" id="goal_np_max" class="param-input" style="width:100%;" step="1" value="22" onchange="saveGoals()">
+          <input type="number" id="goal_np_min" class="param-input" style="width:100%;" min="1" step="1" value="10" onchange="saveGoals()">
+          <input type="number" id="goal_np_max" class="param-input" style="width:100%;" min="1" step="1" value="25" onchange="saveGoals()">
         </div>
       </div>
     </div>
@@ -356,11 +1074,11 @@
 <div id="tab-hist" class="panel">
   <div class="card">
     <div class="card-title">
-      <span>Zapisane pomiary (Pamięć telefonu)</span>
+      <span>Zapisane pomiary</span>
       <div style="display:flex; gap:6px;">
-        <button class="btn-secondary" onclick="exportBackup()" title="Pobierz kopię zapasową JSON">Eksport</button>
-        <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Wgraj kopię zapasową JSON">Import</button>
-        <button class="btn-secondary" onclick="clearHistory()" style="color:#f87171;">Wyczyść</button>
+        <button class="btn-secondary" onclick="exportBackup()">📤 Eksport</button>
+        <button class="btn-secondary" onclick="document.getElementById('importFile').click()">📥 Import</button>
+        <button class="btn-secondary" onclick="clearHistory()" style="color:var(--err-text); border-color:var(--err-border);">🗑️ Wyczyść</button>
       </div>
       <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
     </div>
@@ -371,19 +1089,33 @@
 <script>
 const state = { no3: 15, po4: 1.0, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0 };
 
+const PARAM_LIMITS = {
+  no3: { min: 0, max: 100 },
+  po4: { min: 0, max: 10 },
+  fe:  { min: 0, max: 3 },
+  ph:  { min: 5.0, max: 8.5 },
+  kh:  { min: 0, max: 25 },
+  gh:  { min: 0, max: 30 }
+};
+
 const SERIES_CONFIG = [
-  { key: 'no3', label: 'NO₃ (Makro)', unit: 'mg/l', color: '#38bdf8', active: true, maxRef: 30 },
-  { key: 'po4', label: 'PO₄ (Makro)', unit: 'mg/l', color: '#a855f7', active: true, maxRef: 2.5 },
-  { key: 'fe',  label: 'Fe (Mikro)',  unit: 'mg/l', color: '#f97316', active: true, maxRef: 0.6 },
-  { key: 'co2', label: 'CO₂',         unit: 'mg/l', color: '#10b981', active: false, maxRef: 40 },
-  { key: 'redfield', label: 'Redfield N:P', unit: ':1', color: '#eab308', active: false, maxRef: 25 },
-  { key: 'kh',  label: 'KH',          unit: '°dH',  color: '#ec4899', active: false, maxRef: 15 },
-  { key: 'gh',  label: 'GH',          unit: '°dH',  color: '#14b8a6', active: false, maxRef: 20 },
-  { key: 'ph',  label: 'pH',          unit: '',     color: '#f43f5e', active: false, maxRef: 8.0 }
+  { key: 'no3',      label: 'NO₃',      fullName: 'Azotany (NO₃)',     unit: 'mg/l', color: '#38bdf8', active: true,  maxRef: 30,  decimals: 1, goalKeys: ['no3_min', 'no3_max'] },
+  { key: 'po4',      label: 'PO₄',      fullName: 'Fosforany (PO₄)',   unit: 'mg/l', color: '#a855f7', active: true,  maxRef: 2.5, decimals: 2, goalKeys: ['po4_min', 'po4_max'] },
+  { key: 'fe',       label: 'Fe',       fullName: 'Żelazo (Fe)',       unit: 'mg/l', color: '#f97316', active: true,  maxRef: 0.6, decimals: 2, goalKeys: ['fe_min',  'fe_max'] },
+  { key: 'co2',      label: 'CO₂',      fullName: 'Dwutlenek węgla',   unit: 'mg/l', color: '#10b981', active: false, maxRef: 40,  decimals: 1, goalKeys: ['co2_min', 'co2_max'] },
+  { key: 'redfield', label: 'N:P',      fullName: 'Redfield Atomowy',  unit: ':1',   color: '#eab308', active: false, maxRef: 30,  decimals: 1, goalKeys: ['np_min',  'np_max'] },
+  { key: 'ph',       label: 'pH',       fullName: 'Odczyn wody (pH)',  unit: '',     color: '#f43f5e', active: false, maxRef: 8.5, decimals: 2, goalKeys: ['ph_min',  'ph_max'] },
+  { key: 'kh',       label: 'KH',       fullName: 'Twardość węglanowa',unit: '°dH',  color: '#ec4899', active: false, maxRef: 15,  decimals: 1, goalKeys: null },
+  { key: 'gh',       label: 'GH',       fullName: 'Twardość ogólna',   unit: '°dH',  color: '#14b8a6', active: false, maxRef: 20,  decimals: 1, goalKeys: null }
 ];
 
-let chartMode = 'raw';
-let selectedPointIdx = null;
+const MOLAR_FACTOR_NP = 94.9714 / 62.0049;
+
+// Nowy stan zakładki wykresu
+let chartViewMode = 'single'; // 'single' (czytelny wykres 1 parametru z pasmem celu) lub 'multi' (porównanie wielu w skali %)
+let focusedKey = 'no3';       // aktywnie analizowany parametr w trybie 'single'
+let chartRangeLimit = 0;      // 0 = wszystkie, 5 = ostatnie 5, 10 = ostatnie 10
+let selectedPointIdx = null;  // indeks w przefiltrowanej tablicy chronologicznej
 let cachedChartPoints = [];
 
 function escapeHTML(str) {
@@ -398,14 +1130,24 @@ function parseNumOrDefault(val, def) {
   return isNaN(n) ? def : n;
 }
 
+function calcAtomicRedfield(no3, po4) {
+  if (po4 > 0) return (no3 / po4) * MOLAR_FACTOR_NP;
+  return no3 > 0 ? Infinity : 0;
+}
+
 function sync(key, val, sourceEl) {
-  const num = parseFloat(val);
+  let num = parseFloat(val);
   if (isNaN(num)) return;
+  const lim = PARAM_LIMITS[key];
+  if (lim) {
+    if (num < lim.min) num = lim.min;
+    if (num > lim.max) num = lim.max;
+  }
   state[key] = num;
   const inEl = document.getElementById('in_' + key);
   const slEl = document.getElementById('sl_' + key);
-  if (sourceEl !== inEl) inEl.value = val;
-  if (sourceEl !== slEl) slEl.value = val;
+  if (sourceEl !== inEl) inEl.value = num;
+  if (sourceEl !== slEl) slEl.value = num;
   calculateAll();
 }
 
@@ -418,7 +1160,6 @@ function calculateAll() {
   const { no3, po4, fe, ph, kh, gh } = state;
   const g = getGoals();
 
-  // 1. CO2 (zsynchronizowane z Celami)
   const co2 = 3 * kh * Math.pow(10, 7 - ph);
   document.getElementById('out_co2').textContent = co2.toFixed(1) + ' mg/l';
   const bCo2 = document.getElementById('badge_co2');
@@ -426,17 +1167,14 @@ function calculateAll() {
   else if (co2 <= g.co2_max) setBadge(bCo2, `Optymalnie (${g.co2_min}-${g.co2_max})`, 'ok');
   else setBadge(bCo2, 'Uwaga! Ryzyko przyduchy', 'err');
 
-  // 2. Stosunek masowy i Redfield (zabezpieczone przed PO4 = 0)
-  const pureN = no3 * 0.2259;
-  const pureP = po4 * 0.3261;
   const massRatio = po4 > 0 ? (no3 / po4) : (no3 > 0 ? Infinity : 0);
-  const atomicNP = pureP > 0 ? (pureN / pureP) : (pureN > 0 ? Infinity : 0);
+  const atomicNP = calcAtomicRedfield(no3, po4);
 
   document.getElementById('out_mass').textContent = po4 > 0 ? massRatio.toFixed(1) + ' : 1' : (no3 > 0 ? '∞' : '0 : 0');
   const bMass = document.getElementById('badge_mass');
   if (po4 === 0 && no3 === 0) setBadge(bMass, 'Brak NO₃ i PO₄', 'warn');
   else if (po4 === 0) setBadge(bMass, 'Brak PO₄!', 'warn');
-  else if (massRatio >= 9 && massRatio <= 16) setBadge(bMass, 'Optymalny (10-15:1)', 'ok');
+  else if (massRatio >= 10 && massRatio <= 15) setBadge(bMass, 'Optymalny (10-15:1)', 'ok');
   else setBadge(bMass, 'Poza zakresem 10-15:1', 'warn');
 
   document.getElementById('out_redfield').textContent = po4 > 0 ? atomicNP.toFixed(1) + ' : 1' : (no3 > 0 ? '∞' : '0 : 0');
@@ -451,20 +1189,103 @@ function calculateAll() {
     setBadge(bRed, `Strefa bez glonów (${g.np_min}-${g.np_max})`, 'ok');
   }
 
-  // 3. PO4 : Fe
   const pofe = fe > 0 ? (po4 / fe) : 0;
   document.getElementById('out_pofe').textContent = fe > 0 ? pofe.toFixed(1) + ' : 1' : 'Brak Fe';
   const bPofe = document.getElementById('badge_pofe');
   if (fe === 0) setBadge(bPofe, 'Niedobór Fe', 'warn');
-  else if (pofe >= 2 && pofe <= 6) setBadge(bPofe, 'Optymalny (2:1 - 5:1)', 'ok');
-  else setBadge(bPofe, 'Poza zakresem (2-5:1)', 'warn');
+  else if (pofe < 2.0) setBadge(bPofe, 'Za dużo Fe (<2:1)', 'err');
+  else if (pofe <= 6.0) setBadge(bPofe, 'Optymalny (2:1 - 6:1)', 'ok');
+  else setBadge(bPofe, 'Za mało Fe (>6:1)', 'warn');
 
   const nkh = gh - kh;
   calcDosing();
   updateHumanAdvisor(co2, atomicNP, pofe, nkh);
 }
 
-// KALKULATOR DAWKOWANIA Z PAMIĘCIĄ USTAWIEŃ
+let doseSource = 'calc'; // 'calc' (z suwaków) lub 'hist' (z ostatniego pomiaru w historii)
+
+function setDoseSource(src) {
+  const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
+  if (src === 'hist' && hist.length === 0) {
+    alert('Brak zapisanych pomiarów w historii! Zapisz pomiar w Kalkulatorze lub wgraj dane demo.');
+    return;
+  }
+  doseSource = src;
+  document.getElementById('btn_src_calc').classList.toggle('active-mode', src === 'calc');
+  document.getElementById('btn_src_hist').classList.toggle('active-mode', src === 'hist');
+  
+  const badge = document.getElementById('dose_source_badge');
+  const dateEl = document.getElementById('dose_hist_date');
+
+  if (src === 'hist' && hist.length > 0) {
+    const latest = hist[0];
+    // Synchronizujemy też suwaki kalkulatora z ostatnim zapisem historii, by cała aplikacja była spójna
+    ['no3', 'po4', 'fe', 'ph', 'kh', 'gh'].forEach(k => {
+      if (latest[k] !== undefined) {
+        state[k] = parseFloat(latest[k]);
+        const inEl = document.getElementById('in_' + k);
+        const slEl = document.getElementById('sl_' + k);
+        if (inEl) inEl.value = state[k];
+        if (slEl) slEl.value = state[k];
+      }
+    });
+    if (badge) setBadge(badge, 'Z historii: ' + latest.date, 'ok');
+    if (dateEl) dateEl.textContent = '📅 Pomiar: ' + latest.date;
+  } else {
+    if (badge) setBadge(badge, 'Z suwaków kalkulatora', 'ok');
+    if (dateEl) dateEl.textContent = '';
+  }
+  calculateAll();
+}
+
+function syncFromDosingCurrent(key, val) {
+  // Gdy użytkownik zmienia "Obecne NO3/PO4/Fe" bezpośrednio w zakładce Korekta, od razu synchronizuj z Kalkulatorem
+  doseSource = 'calc';
+  const btnCalc = document.getElementById('btn_src_calc');
+  const btnHist = document.getElementById('btn_src_hist');
+  if (btnCalc) btnCalc.classList.add('active-mode');
+  if (btnHist) btnHist.classList.remove('active-mode');
+  const dateEl = document.getElementById('dose_hist_date');
+  if (dateEl) dateEl.textContent = '';
+  const badge = document.getElementById('dose_source_badge');
+  if (badge) setBadge(badge, 'Z suwaków kalkulatora', 'ok');
+
+  const curInput = document.getElementById('dose_cur_' + key);
+  sync(key, val, curInput);
+}
+
+function syncTargetsFromGoals(silent = false) {
+  const g = getGoals();
+  // Ustawiamy złoty środek (lub optymalną wartość docelową) z widełek w zakładce Cele
+  const tNo3 = parseFloat(((g.no3_min + g.no3_max) / 2).toFixed(1));
+  const tPo4 = parseFloat(((g.po4_min + g.po4_max) / 2).toFixed(2));
+  const tFe  = parseFloat(((g.fe_min  + g.fe_max)  / 2).toFixed(2));
+
+  document.getElementById('target_no3').value = tNo3;
+  document.getElementById('target_po4').value = tPo4;
+  document.getElementById('target_fe').value  = tFe;
+
+  saveDosingConfig();
+  if (!silent) {
+    alert(`Zsynchronizowano cele korekty ze środkiem zakresów z zakładki „Cele”:
+• NO₃: ${tNo3} mg/l
+• PO₄: ${tPo4} mg/l
+• Fe: ${tFe} mg/l`);
+  }
+}
+
+function applyDosingToCalculator() {
+  const tNo3 = Math.max(0, parseNumOrDefault(document.getElementById('target_no3').value, 15));
+  const tPo4 = Math.max(0, parseNumOrDefault(document.getElementById('target_po4').value, 1.2));
+  const tFe  = Math.max(0, parseNumOrDefault(document.getElementById('target_fe').value, 0.3));
+
+  sync('no3', tNo3, null);
+  sync('po4', tPo4, null);
+  sync('fe',  tFe,  null);
+
+  alert('Wartości docelowe zostały ustawione w Kalkulatorze! Możesz teraz przejść do Kalkulatora, aby zobaczyć nową diagnozę lub zapisać pomiar po podaniu nawozów.');
+}
+
 function loadDosingConfig() {
   try {
     const saved = JSON.parse(localStorage.getItem('aqualab_dosing') || '{}');
@@ -472,58 +1293,174 @@ function loadDosingConfig() {
     if (saved.no3 !== undefined) document.getElementById('target_no3').value = saved.no3;
     if (saved.po4 !== undefined) document.getElementById('target_po4').value = saved.po4;
     if (saved.fe !== undefined) document.getElementById('target_fe').value = saved.fe;
+    if (saved.rate_no3 !== undefined) document.getElementById('fert_rate_no3').value = saved.rate_no3;
+    if (saved.rate_po4 !== undefined) document.getElementById('fert_rate_po4').value = saved.rate_po4;
+    if (saved.rate_fe !== undefined) document.getElementById('fert_rate_fe').value = saved.rate_fe;
   } catch (e) {}
 }
 
 function saveDosingConfig() {
   const cfg = {
-    vol: parseNumOrDefault(document.getElementById('tank_vol').value, 160),
-    no3: parseNumOrDefault(document.getElementById('target_no3').value, 15),
-    po4: parseNumOrDefault(document.getElementById('target_po4').value, 1.2),
-    fe: parseNumOrDefault(document.getElementById('target_fe').value, 0.3)
+    vol: Math.max(1, parseNumOrDefault(document.getElementById('tank_vol').value, 160)),
+    no3: Math.max(0, parseNumOrDefault(document.getElementById('target_no3').value, 15)),
+    po4: Math.max(0, parseNumOrDefault(document.getElementById('target_po4').value, 1.2)),
+    fe: Math.max(0, parseNumOrDefault(document.getElementById('target_fe').value, 0.3)),
+    rate_no3: Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_no3').value, 1.0)),
+    rate_po4: Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_po4').value, 0.1)),
+    rate_fe: Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_fe').value, 0.1))
   };
   localStorage.setItem('aqualab_dosing', JSON.stringify(cfg));
   calcDosing();
 }
 
+function buildParamDosingCard(paramLabel, chemFormula, curVal, targetVal, goalMin, goalMax, vol, fertRatePer100L, decimals, saltName, saltFactor) {
+  const diff = targetVal - curVal;
+  const absDiff = Math.abs(diff);
+  const eps = decimals === 2 ? 0.009 : 0.09;
+
+  // Sprawdzenie, jak obecny wynik ma się do widełek z zakładki Cele
+  const inGoalRange = curVal >= goalMin && curVal <= goalMax;
+
+  if (absDiff <= eps) {
+    return `
+      <div class="diag-item" style="border-left: 3px solid var(--ok-text);">
+        <div class="diag-top">
+          <span class="diag-name">${paramLabel} (${chemFormula})</span>
+          <span class="badge ok">🎯 Dokładnie w celu (${curVal.toFixed(decimals)} mg/l)</span>
+        </div>
+        <div class="diag-desc">
+          Obecne stężenie (<strong>${curVal.toFixed(decimals)} mg/l</strong>) pokrywa się z Twoim celem (<strong>${targetVal.toFixed(decimals)} mg/l</strong>). Zakres z zakładki Cele: ${goalMin}–${goalMax} mg/l. Nie musisz nic dozować.
+        </div>
+      </div>
+    `;
+  }
+
+  if (diff > 0) {
+    // NIEDOBÓR -> LICZYMY DAWKĘ NAWOZU (mg, ml, naciśnięcia pompki, gramy soli)
+    const totalMg = diff * vol;
+    // Skoro 1 ml podnosi o fertRatePer100L w 100L, to 1 ml zawiera (fertRatePer100L * 100) mg jonu
+    const mgPerMl = fertRatePer100L * 100;
+    const mlNeeded = totalMg / mgPerMl;
+    const pumpsNeeded = mlNeeded / 1.2; // 1 standardowe naciśnięcie pompki ~ 1.2 ml
+    const saltGrams = (totalMg * saltFactor) / 1000;
+
+    return `
+      <div class="diag-item" style="border-left: 3px solid var(--warn-text);">
+        <div class="diag-top">
+          <span class="diag-name">${paramLabel} — Niedobór</span>
+          <span class="badge warn">Brakuje +${diff.toFixed(decimals)} mg/l (z ${curVal.toFixed(decimals)} → ${targetVal.toFixed(decimals)})</span>
+        </div>
+        <div class="diag-desc">
+          Aby podnieść ${chemFormula} w <strong>${vol} L</strong> wody o <strong>+${diff.toFixed(decimals)} mg/l</strong>:
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:8px; font-family:'JetBrains Mono',monospace;">
+            <div style="background:rgba(15,23,42,0.85); padding:7px; border-radius:8px; border:1px solid rgba(51,65,85,0.5); text-align:center;">
+              <div style="font-size:0.63rem; color:var(--text-muted);">Nawóz płynny</div>
+              <strong style="font-size:0.9rem; color:#34d399;">${mlNeeded.toFixed(1)} ml</strong>
+              <div style="font-size:0.62rem; color:var(--text-muted);">~${pumpsNeeded.toFixed(1)} kliknięć</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.85); padding:7px; border-radius:8px; border:1px solid rgba(51,65,85,0.5); text-align:center;">
+              <div style="font-size:0.63rem; color:var(--text-muted);">Czyste jony</div>
+              <strong style="font-size:0.9rem; color:#38bdf8;">${Math.round(totalMg)} mg</strong>
+              <div style="font-size:0.62rem; color:var(--text-muted);">${chemFormula} łącznie</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.85); padding:7px; border-radius:8px; border:1px solid rgba(51,65,85,0.5); text-align:center;">
+              <div style="font-size:0.63rem; color:var(--text-muted);">Sucha sól (${saltName})</div>
+              <strong style="font-size:0.9rem; color:#fbbf24;">${saltGrams.toFixed(2)} g</strong>
+              <div style="font-size:0.62rem; color:var(--text-muted);">czystej soli</div>
+            </div>
+          </div>
+          <div style="margin-top:6px; font-size:0.7rem; color:var(--text-muted);">
+            Widełki w zakładce „Cele”: ${goalMin}–${goalMax} mg/l ${inGoalRange ? '(obecny wynik mieści się już w widełkach)' : '(obecny wynik poniżej minimum!)'}.
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // NADMIAR -> LICZYMY ILE WODY PODMIENIĆ (RO / czysta woda), ABY ZBIĆ STĘŻENIE DO CELU
+    const excess = curVal - targetVal;
+    const pctWaterChange = curVal > 0 ? Math.min(100, Math.round((excess / curVal) * 100)) : 0;
+    const litersToChange = Math.round((pctWaterChange / 100) * vol);
+    const statusCls = curVal > goalMax ? 'err' : 'warn';
+
+    return `
+      <div class="diag-item" style="border-left: 3px solid var(--${statusCls}-text);">
+        <div class="diag-top">
+          <span class="diag-name">${paramLabel} — Nadmiar</span>
+          <span class="badge ${statusCls}">Za dużo o ${excess.toFixed(decimals)} mg/l (jest ${curVal.toFixed(decimals)}, cel ${targetVal.toFixed(decimals)})</span>
+        </div>
+        <div class="diag-desc">
+          Stężenie w akwarium przekracza Twój punkt docelowy o <strong>${excess.toFixed(decimals)} mg/l</strong> ${curVal > goalMax ? `(przekracza też maksymalny próg ${goalMax} mg/l z zakładki Cele!)` : `(ale mieści się jeszcze poniżej progu max ${goalMax} mg/l)`}.<br>
+          💧 <strong>Rekomendacja:</strong> Wstrzymaj dawkowanie ${chemFormula} lub wykonaj podmianę ok. <strong>${pctWaterChange}% objętości (${litersToChange} L wody RO/bez ${chemFormula})</strong>, aby zbić stężenie do ${targetVal.toFixed(decimals)} mg/l.
+        </div>
+      </div>
+    `;
+  }
+}
+
 function calcDosing() {
-  const vol = parseNumOrDefault(document.getElementById('tank_vol').value, 160);
-  const tNo3 = parseNumOrDefault(document.getElementById('target_no3').value, 15);
-  const tPo4 = parseNumOrDefault(document.getElementById('target_po4').value, 1.2);
-  const tFe = parseNumOrDefault(document.getElementById('target_fe').value, 0.3);
+  const vol = Math.max(1, parseNumOrDefault(document.getElementById('tank_vol').value, 160));
+  const tNo3 = Math.max(0, parseNumOrDefault(document.getElementById('target_no3').value, 15));
+  const tPo4 = Math.max(0, parseNumOrDefault(document.getElementById('target_po4').value, 1.2));
+  const tFe  = Math.max(0, parseNumOrDefault(document.getElementById('target_fe').value, 0.3));
 
-  const diffNo3 = Math.max(0, tNo3 - state.no3);
-  const diffPo4 = Math.max(0, tPo4 - state.po4);
-  const diffFe = Math.max(0, tFe - state.fe);
+  const rateNo3 = Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_no3')?.value, 1.0));
+  const ratePo4 = Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_po4')?.value, 0.1));
+  const rateFe  = Math.max(0.01, parseNumOrDefault(document.getElementById('fert_rate_fe')?.value, 0.1));
 
-  const mgNo3 = Math.round(diffNo3 * vol);
-  const mgPo4 = Math.round(diffPo4 * vol);
-  const mgFe = Math.round(diffFe * vol);
+  const g = getGoals();
 
-  const container = document.getElementById('dosing_results');
-  container.innerHTML = `
-    <div class="diag-item">
+  // Aktualizacja podpowiedzi zakresów z zakładki Cele
+  const hNo3 = document.getElementById('goal_hint_no3');
+  const hPo4 = document.getElementById('goal_hint_po4');
+  const hFe  = document.getElementById('goal_hint_fe');
+  if (hNo3) hNo3.textContent = `Cel: ${g.no3_min}-${g.no3_max}`;
+  if (hPo4) hPo4.textContent = `Cel: ${g.po4_min}-${g.po4_max}`;
+  if (hFe)  hFe.textContent  = `Cel: ${g.fe_min}-${g.fe_max}`;
+
+  // Synchronizacja pól "Obecne parametry" w zakładce Korekta
+  const curNo3El = document.getElementById('dose_cur_no3');
+  const curPo4El = document.getElementById('dose_cur_po4');
+  const curFeEl  = document.getElementById('dose_cur_fe');
+  if (curNo3El && document.activeElement !== curNo3El) curNo3El.value = state.no3;
+  if (curPo4El && document.activeElement !== curPo4El) curPo4El.value = state.po4;
+  if (curFeEl  && document.activeElement !== curFeEl)  curFeEl.value  = state.fe;
+
+  // Docelowy Redfield po korekcie
+  const targetAtomicNP = calcAtomicRedfield(tNo3, tPo4);
+  const targetMassRatio = tPo4 > 0 ? (tNo3 / tPo4) : 0;
+
+  // Współczynniki przeliczeniowe czystych jonów na sole:
+  // KNO3 zawiera 61.33% NO3 -> factor = 1.6305
+  // KH2PO4 zawiera 69.79% PO4 -> factor = 1.4329
+  // Chelat Fe DTPA 11% zawiera 11% Fe -> factor = 9.09
+  const cardNo3 = buildParamDosingCard('Azotany', 'NO₃', state.no3, tNo3, g.no3_min, g.no3_max, vol, rateNo3, 1, 'KNO₃', 1.6305);
+  const cardPo4 = buildParamDosingCard('Fosforany', 'PO₄', state.po4, tPo4, g.po4_min, g.po4_max, vol, ratePo4, 2, 'KH₂PO₄', 1.4329);
+  const cardFe  = buildParamDosingCard('Żelazo', 'Fe', state.fe, tFe, g.fe_min, g.fe_max, vol, rateFe, 2, 'Chelat 11%', 9.0909);
+
+  const npOk = targetAtomicNP >= g.np_min && targetAtomicNP <= g.np_max;
+  const ratioCard = `
+    <div class="diag-item" style="background:rgba(15,23,42,0.5);">
       <div class="diag-top">
-        <span class="diag-name">Korekta Azotu (NO₃)</span>
-        <span class="badge ${diffNo3 > 0 ? 'warn' : 'ok'}">${diffNo3 > 0 ? '+' + diffNo3.toFixed(1) + ' mg/l' : 'W normie'}</span>
+        <span class="diag-name">Prognoza bilansu po korekcie</span>
+        <span class="badge ${npOk ? 'ok' : 'warn'}">Docelowy Redfield: ${isFinite(targetAtomicNP) ? targetAtomicNP.toFixed(1) : '∞'} : 1</span>
       </div>
-      <div class="diag-desc">Aby podbić NO₃ w ${vol}L wody o ${diffNo3.toFixed(1)} mg/l, musisz wprowadzić łącznie <strong>${mgNo3} mg</strong> jonów NO₃.</div>
-    </div>
-    <div class="diag-item">
-      <div class="diag-top">
-        <span class="diag-name">Korekta Fosforu (PO₄)</span>
-        <span class="badge ${diffPo4 > 0 ? 'warn' : 'ok'}">${diffPo4 > 0 ? '+' + diffPo4.toFixed(2) + ' mg/l' : 'W normie'}</span>
+      <div class="diag-desc">
+        Po osiągnięciu wpisanych celów (${tNo3} mg/l NO₃ i ${tPo4} mg/l PO₄) stosunek masowy wyniesie <strong>${targetMassRatio.toFixed(1)} : 1</strong>, a atomowy Redfield N:P <strong>${isFinite(targetAtomicNP) ? targetAtomicNP.toFixed(1) : '∞'} : 1</strong> (Twój cel w zakładce Cele: ${g.np_min}–${g.np_max}:1).
       </div>
-      <div class="diag-desc">Aby podbić PO₄ w ${vol}L wody o ${diffPo4.toFixed(2)} mg/l, musisz wprowadzić łącznie <strong>${mgPo4} mg</strong> jonów PO₄.</div>
-    </div>
-    <div class="diag-item">
-      <div class="diag-top">
-        <span class="diag-name">Korekta Żelaza (Fe)</span>
-        <span class="badge ${diffFe > 0 ? 'warn' : 'ok'}">${diffFe > 0 ? '+' + diffFe.toFixed(2) + ' mg/l' : 'W normie'}</span>
-      </div>
-      <div class="diag-desc">Aby podbić Fe w ${vol}L wody o ${diffFe.toFixed(2)} mg/l, musisz wprowadzić łącznie <strong>${mgFe} mg</strong> żelaza.</div>
     </div>
   `;
+
+  const container = document.getElementById('dosing_results');
+  if (container) {
+    container.innerHTML = cardNo3 + cardPo4 + cardFe + ratioCard;
+  }
+
+  const sumBadge = document.getElementById('dose_summary_badge');
+  if (sumBadge) {
+    const actionsNeeded = [Math.abs(tNo3 - state.no3) > 0.09, Math.abs(tPo4 - state.po4) > 0.009, Math.abs(tFe - state.fe) > 0.009].filter(Boolean).length;
+    if (actionsNeeded === 0) setBadge(sumBadge, 'Wszystkie 3 parametry w celu', 'ok');
+    else setBadge(sumBadge, `Do skorygowania: ${actionsNeeded}`, 'warn');
+  }
 }
 
 function switchTab(tab, btn) {
@@ -532,14 +1469,15 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
   if (tab === 'chart') {
-    drawTrendChart();
+    refreshChartTab();
   }
 }
 
 function saveMeasurement() {
   const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
   const co2 = parseFloat((3 * state.kh * Math.pow(10, 7 - state.ph)).toFixed(1));
-  const redfield = state.po4 > 0 ? parseFloat(((state.no3 * 0.2259) / (state.po4 * 0.3261)).toFixed(1)) : 0;
+  const rawRedfield = calcAtomicRedfield(state.no3, state.po4);
+  const redfield = isFinite(rawRedfield) ? parseFloat(rawRedfield.toFixed(1)) : null;
   const note = document.getElementById('note_input').value.trim();
   const now = new Date();
   const dateStr = now.toLocaleDateString('pl-PL', {day:'2-digit', month:'2-digit'}) + ' ' + now.toLocaleTimeString('pl-PL', {hour: '2-digit', minute:'2-digit'});
@@ -547,10 +1485,10 @@ function saveMeasurement() {
   hist.unshift({ date: dateStr, ...state, co2, redfield, note });
   localStorage.setItem('aqualab_history', JSON.stringify(hist));
   document.getElementById('note_input').value = '';
-  selectedPointIdx = hist.length - 1;
+  selectedPointIdx = null; // automatycznie wybierze najnowszy punkt
   renderHistory();
-  drawTrendChart();
-  alert('Pomiar został zapisany!');
+  refreshChartTab();
+  alert('Pomiar został zapisany pomyślnie!');
 }
 
 function renderHistory() {
@@ -558,14 +1496,14 @@ function renderHistory() {
   document.getElementById('histCount').textContent = hist.length;
   const container = document.getElementById('history_container');
   if (hist.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:16px;">Brak zapisanych pomiarów.</div>';
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:20px;">Brak zapisanych pomiarów w historii.</div>';
     return;
   }
   container.innerHTML = hist.map((item, idx) => `
     <div class="history-item">
       <div class="history-head">
         <span>📅 ${escapeHTML(item.date)}</span>
-        <span style="color:#f87171; cursor:pointer;" onclick="deleteEntry(${idx})">Usuń</span>
+        <span style="color:var(--err-text); cursor:pointer; font-weight:700;" onclick="deleteEntry(${idx})">Usuń</span>
       </div>
       <div class="history-grid">
         <div>NO₃: <strong>${item.no3}</strong></div>
@@ -575,7 +1513,7 @@ function renderHistory() {
         <div>KH/GH: <strong>${item.kh}/${item.gh}</strong></div>
         <div>CO₂: <strong>${item.co2}</strong></div>
       </div>
-      ${item.note ? `<div style="margin-top:6px; font-size:0.78rem; color:#cbd5e1; font-style:italic;">📝 \${escapeHTML(item.note)}</div>` : ''}
+      ${item.note ? `<div style="margin-top:8px; font-size:0.78rem; color:#cbd5e1; font-style:italic;">📝 ${escapeHTML(item.note)}</div>` : ''}
     </div>
   `).join('');
 }
@@ -586,23 +1524,22 @@ function deleteEntry(idx) {
   localStorage.setItem('aqualab_history', JSON.stringify(hist));
   selectedPointIdx = null;
   renderHistory();
-  drawTrendChart();
+  refreshChartTab();
 }
 
 function clearHistory() {
-  if (confirm('Wyczyścić całą historię?')) {
+  if (confirm('Czy na pewno chcesz wyczyścić całą historię pomiarów?')) {
     localStorage.removeItem('aqualab_history');
     selectedPointIdx = null;
     renderHistory();
-    drawTrendChart();
+    refreshChartTab();
   }
 }
 
-// CELE I TRYBY
-const defaultGoals = { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 22 };
+const defaultGoals = { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 25 };
 const presetModes = {
-  hightech: { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 22 },
-  lowtech: { no3_min: 5, no3_max: 15, po4_min: 0.3, po4_max: 0.8, fe_min: 0.05, fe_max: 0.2, co2_min: 5, co2_max: 15, ph_min: 6.8, ph_max: 7.6, np_min: 10, np_max: 22 }
+  hightech: { no3_min: 10, no3_max: 25, po4_min: 0.8, po4_max: 1.5, fe_min: 0.1, fe_max: 0.4, co2_min: 20, co2_max: 32, ph_min: 6.4, ph_max: 7.0, np_min: 10, np_max: 25 },
+  lowtech: { no3_min: 5, no3_max: 15, po4_min: 0.3, po4_max: 0.8, fe_min: 0.05, fe_max: 0.2, co2_min: 5, co2_max: 15, ph_min: 6.8, ph_max: 7.6, np_min: 10, np_max: 25 }
 };
 
 function setAquariumMode(modeName) {
@@ -622,6 +1559,7 @@ function setAquariumMode(modeName) {
   document.getElementById('goal_np_max').value = mode.np_max;
 
   saveGoals();
+  syncTargetsFromGoals(true);
   document.getElementById('btn_hightech').classList.toggle('active-mode', modeName === 'hightech');
   document.getElementById('btn_lowtech').classList.toggle('active-mode', modeName === 'lowtech');
   
@@ -633,6 +1571,10 @@ function setAquariumMode(modeName) {
   }
 }
 
+function normalizePair(minVal, maxVal) {
+  return minVal > maxVal ? [maxVal, minVal] : [minVal, maxVal];
+}
+
 function getGoals() {
   try {
     const saved = localStorage.getItem('aqualab_goals');
@@ -641,21 +1583,34 @@ function getGoals() {
 }
 
 function saveGoals() {
-  const goals = {
-    no3_min: parseNumOrDefault(document.getElementById('goal_no3_min').value, 10),
-    no3_max: parseNumOrDefault(document.getElementById('goal_no3_max').value, 25),
-    po4_min: parseNumOrDefault(document.getElementById('goal_po4_min').value, 0.8),
-    po4_max: parseNumOrDefault(document.getElementById('goal_po4_max').value, 1.5),
-    fe_min: parseNumOrDefault(document.getElementById('goal_fe_min').value, 0.1),
-    fe_max: parseNumOrDefault(document.getElementById('goal_fe_max').value, 0.4),
-    co2_min: parseNumOrDefault(document.getElementById('goal_co2_min').value, 20),
-    co2_max: parseNumOrDefault(document.getElementById('goal_co2_max').value, 32),
-    ph_min: parseNumOrDefault(document.getElementById('goal_ph_min').value, 6.4),
-    ph_max: parseNumOrDefault(document.getElementById('goal_ph_max').value, 7.0),
-    np_min: parseNumOrDefault(document.getElementById('goal_np_min').value, 10),
-    np_max: parseNumOrDefault(document.getElementById('goal_np_max').value, 22)
-  };
+  const [no3_min, no3_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_no3_min').value, 10),
+    parseNumOrDefault(document.getElementById('goal_no3_max').value, 25)
+  );
+  const [po4_min, po4_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_po4_min').value, 0.8),
+    parseNumOrDefault(document.getElementById('goal_po4_max').value, 1.5)
+  );
+  const [fe_min, fe_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_fe_min').value, 0.1),
+    parseNumOrDefault(document.getElementById('goal_fe_max').value, 0.4)
+  );
+  const [co2_min, co2_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_co2_min').value, 20),
+    parseNumOrDefault(document.getElementById('goal_co2_max').value, 32)
+  );
+  const [ph_min, ph_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_ph_min').value, 6.4),
+    parseNumOrDefault(document.getElementById('goal_ph_max').value, 7.0)
+  );
+  const [np_min, np_max] = normalizePair(
+    parseNumOrDefault(document.getElementById('goal_np_min').value, 10),
+    parseNumOrDefault(document.getElementById('goal_np_max').value, 25)
+  );
+
+  const goals = { no3_min, no3_max, po4_min, po4_max, fe_min, fe_max, co2_min, co2_max, ph_min, ph_max, np_min, np_max };
   localStorage.setItem('aqualab_goals', JSON.stringify(goals));
+  loadGoalsToInputs();
   calculateAll();
 }
 
@@ -663,7 +1618,7 @@ function resetGoals() {
   localStorage.removeItem('aqualab_goals');
   loadGoalsToInputs();
   calculateAll();
-  alert('Przywrócono domyślne wymagania!');
+  alert('Przywrócono domyślne cele!');
 }
 
 function loadGoalsToInputs() {
@@ -693,7 +1648,6 @@ function loadGoalsToInputs() {
   document.getElementById('goal_np_max').value = g.np_max;
 }
 
-// DORADCA AKWARYSTYCZNY Z ANALIZĄ KH/GH
 function updateHumanAdvisor(co2, atomicNP, pofe, nkh) {
   const g = getGoals();
   const { no3, po4, fe, ph, kh, gh } = state;
@@ -703,59 +1657,80 @@ function updateHumanAdvisor(co2, atomicNP, pofe, nkh) {
   let panels = [];
   let issuesCount = 0;
 
-  // 1. CO2
-  let co2Status = 'ok', co2Badge = 'Optymalne', co2Text = `Stężenie CO₂ wynosi ${co2.toFixed(1)} mg/l (pH: ${ph}). Warunki do fotosyntezy są bardzo dobre.`;
+  let co2Status = 'ok', co2Badge = 'Optymalne', co2Text = `Stężenie CO₂ (${co2.toFixed(1)} mg/l) i pH (${ph}) mieszczą się w normie celów (${g.ph_min}-${g.ph_max}). Warunki fotosyntezy są idealne.`;
   if (co2 < g.co2_min) {
-    co2Status = 'warn'; co2Badge = 'Za mało CO₂'; co2Text = `Poziom gazu (${co2.toFixed(1)} mg/l) jest poniżej Twojego minimum (${g.co2_min} mg/l). Wzrost roślin może zwolnić. Zwiększ podawanie CO₂.`;
+    co2Status = 'warn'; co2Badge = 'Za mało CO₂'; co2Text = `Poziom gazu (${co2.toFixed(1)} mg/l) poniżej minimum (${g.co2_min} mg/l). Zwiększ podawanie CO₂.`;
     issuesCount++;
   } else if (co2 > g.co2_max) {
-    co2Status = 'err'; co2Badge = 'Ryzyko przyduchy'; co2Text = `Stężenie CO₂ (${co2.toFixed(1)} mg/l) przekracza próg bezpieczeństwa (${g.co2_max} mg/l). Ryzyko dla ryb i krewetek!`;
+    co2Status = 'err'; co2Badge = 'Ryzyko przyduchy'; co2Text = `Stężenie CO₂ (${co2.toFixed(1)} mg/l) przekracza próg (${g.co2_max} mg/l). Zagrożenie dla obsady!`;
+    issuesCount++;
+  } else if (ph < g.ph_min || ph > g.ph_max) {
+    co2Status = 'warn';
+    co2Badge = ph < g.ph_min ? 'Za niskie pH' : 'Za wysokie pH';
+    co2Text = `Odczyn pH (${ph}) poza zakresem docelowym (${g.ph_min}-${g.ph_max}). Sprawdź KH.`;
     issuesCount++;
   }
-  panels.push({ title: 'Gaz i Fotosynteza (CO₂)', badge: co2Badge, status: co2Status, desc: co2Text });
+  panels.push({ title: 'Gaz, pH i Fotosynteza (CO₂)', badge: co2Badge, status: co2Status, desc: co2Text });
 
-  // 2. Redfield N:P
-  let npStatus = 'ok', npBadge = 'Strefa bez glonów', npText = `Stosunek atomowy N:P wynosi ${isFinite(atomicNP) ? atomicNP.toFixed(1) : '∞'}:1 (cel: ${g.np_min}-${g.np_max}). Równowaga makro zachowana.`;
+  let npStatus = 'ok', npBadge = 'Strefa bez glonów';
+  let npText = `Stosunek atomowy N:P wynosi ${isFinite(atomicNP) ? atomicNP.toFixed(1) : '∞'}:1 (cel: ${g.np_min}-${g.np_max}), stężenia makro w normie.`;
+
+  const no3Low = no3 < g.no3_min, no3High = no3 > g.no3_max;
+  const po4Low = po4 < g.po4_min, po4High = po4 > g.po4_max;
+
   if (po4 === 0 && no3 === 0) {
-    npStatus = 'warn'; npBadge = 'Brak Makro (N i P = 0)'; npText = `Zarówno azotany, jak i fosforany wynoszą 0 mg/l. Rośliny głodują – wprowadź nawożenie makroelementowe.`;
+    npStatus = 'warn'; npBadge = 'Brak Makro (N i P = 0)'; npText = `Zarówno azotany, jak i fosforany wynoszą 0 mg/l. Wprowadź nawożenie makroelementowe.`;
     issuesCount++;
   } else if (po4 === 0 || atomicNP > g.np_max) {
     npStatus = 'warn'; npBadge = 'Ryzyko Zielenic (GSA)'; npText = po4 === 0
-      ? `Brak wykrywalnego fosforu (PO₄ = 0) przy obecnym azocie. Skrajnie wysoki stosunek N:P sprzyja zielenicom punktowym (GSA). Podaj PO₄.`
-      : `Stosunek N:P (${atomicNP.toFixed(1)}) przekracza górną granicę (${g.np_max}). Nadmiar azotu względem fosforu sprzyja zielenicom punktowym. Podaj PO₄.`;
+      ? `Brak wykrywalnego PO₄ przy obecnym azocie. Wysoki N:P sprzyja zielenicom punktowym (GSA). Podaj fosforany.`
+      : `Stosunek atomowy N:P (${atomicNP.toFixed(1)}:1) przekracza górną granicę (${g.np_max}:1). Ryzyko GSA.`;
     issuesCount++;
   } else if (atomicNP < g.np_min) {
-    npStatus = 'err'; npBadge = 'Ryzyko Sinic'; npText = `Stosunek N:P (${atomicNP.toFixed(1)}) jest za niski względem celu (${g.np_min}). Za mało azotu względem fosforu – ryzyko sinic (cyjanobakterii). Podnieś NO₃.`;
+    npStatus = 'err'; npBadge = 'Ryzyko Sinic'; npText = `Stosunek atomowy N:P (${atomicNP.toFixed(1)}:1) jest za niski względem celu (${g.np_min}:1). Ryzyko sinic. Podnieś NO₃.`;
+    issuesCount++;
+  } else if (no3Low || no3High || po4Low || po4High) {
+    npStatus = 'warn';
+    npBadge = 'Poza celem Makro';
+    let details = [];
+    if (no3Low) details.push(`NO₃ poniżej min (${no3} < ${g.no3_min})`);
+    if (no3High) details.push(`NO₃ powyżej max (${no3} > ${g.no3_max})`);
+    if (po4Low) details.push(`PO₄ poniżej min (${po4} < ${g.po4_min})`);
+    if (po4High) details.push(`PO₄ powyżej max (${po4} > ${g.po4_max})`);
+    npText = `Proporcja N:P jest poprawna, ale stężenia wymagają korekty: ${details.join(', ')}.`;
     issuesCount++;
   }
-  panels.push({ title: 'Równowaga Makro (Redfield N:P)', badge: npBadge, status: npStatus, desc: npText });
+  panels.push({ title: 'Równowaga Makro (NO₃, PO₄, Redfield)', badge: npBadge, status: npStatus, desc: npText });
 
-  // 3. PO4 : Fe
-  let feStatus = 'ok', feBadge = 'Bilans Prawidłowy', feText = `Relacja fosforu do żelaza (${pofe.toFixed(1)}:1) jest zrównoważona. Brak ryzyka wytrącania.`;
+  let feStatus = 'ok', feBadge = 'Bilans Prawidłowy', feText = `Stężenie Fe (${fe} mg/l) w normie (${g.fe_min}-${g.fe_max} mg/l), relacja PO₄:Fe (${pofe.toFixed(1)}:1) zrównoważona.`;
   if (fe === 0) {
-    feStatus = 'warn'; feBadge = 'Brak Żelaza'; feText = `Brak wykrywalnego żelaza w słupie wody. Rośliny mogą cierpieć na chlorozę młodych liści.`;
+    feStatus = 'warn'; feBadge = 'Brak Żelaza'; feText = `Brak wykrywalnego żelaza. Ryzyko chlorozy młodych liści roślin.`;
     issuesCount++;
   } else if (pofe < 2.0) {
-    feStatus = 'err'; feBadge = 'Ryzyko Krasnorostów (BBA)'; feText = `Żelaza jest za dużo względem fosforanów (${pofe.toFixed(1)}:1). Ryzyko wytrącania fosforanu żelaza i wysypu krasnorostów BBA. Zredukuj mikro lub podbij PO₄.`;
+    feStatus = 'err'; feBadge = 'Ryzyko Krasnorostów (BBA)'; feText = `Za dużo żelaza względem PO₄ (${pofe.toFixed(1)}:1, norma 2:1 - 6:1). Ryzyko krasnorostów BBA.`;
     issuesCount++;
-  } else if (pofe > 7.0) {
-    feStatus = 'warn'; feBadge = 'Niskie Mikro / Fe'; feText = `Stosunek PO₄ do Fe jest wysoki (${pofe.toFixed(1)}:1). Upewnij się, że dawka mikroelementów pokrywa zapotrzebowanie.`;
+  } else if (pofe > 6.0) {
+    feStatus = 'warn'; feBadge = 'Niskie Fe względem PO₄'; feText = `Stosunek PO₄ do Fe wysoki (${pofe.toFixed(1)}:1). Upewnij się co do dawki mikroelementów.`;
+    issuesCount++;
+  } else if (fe < g.fe_min || fe > g.fe_max) {
+    feStatus = 'warn';
+    feBadge = fe < g.fe_min ? 'Niskie stężenie Fe' : 'Wysokie stężenie Fe';
+    feText = `Proporcja PO₄:Fe prawidłowa, ale samo żelazo (${fe} mg/l) poza Twoim celem (${g.fe_min}-${g.fe_max}).`;
     issuesCount++;
   }
-  panels.push({ title: 'Współpraca Fosforu z Żelazem', badge: feBadge, status: feStatus, desc: feText });
+  panels.push({ title: 'Mikroelementy i Bilans PO₄ : Fe', badge: feBadge, status: feStatus, desc: feText });
 
-  // 4. Analiza KH, GH i ich stosunek
   const khPct = gh > 0 ? Math.round((kh / gh) * 100) : 0;
-  let ghStatus = 'ok', ghBadge = 'Stosunek KH/GH Idealny', ghText = `Twardość węglanowa (KH: ${kh} °dH) stanowi ${khPct}% twardości ogólnej (GH: ${gh} °dH). Twardość niewęglanowa wynosi ${nkh.toFixed(1)} °dH. Zdrowa proporcja Ca/Mg.`;
+  let ghStatus = 'ok', ghBadge = 'Stosunek KH/GH Idealny', ghText = `Twardość węglanowa (KH: ${kh} °dH) stanowi ${khPct}% ogólnej (GH: ${gh} °dH). Zdrowa proporcja mineralna.`;
   
   if (kh > gh) {
-    ghStatus = 'err'; ghBadge = 'Nieprawidłowość: KH > GH'; ghText = `Uwaga! Twardość węglanowa (${kh} °dH) jest wyższa niż ogólna (${gh} °dH). Oznacza to obecność węglanów sodu/potasu. Może blokować przyswajanie wapnia!`;
+    ghStatus = 'err'; ghBadge = 'Nieprawidłowość: KH > GH'; ghText = `Uwaga! KH (${kh} °dH) wyższe niż GH (${gh} °dH). Obecność sodu/potasu, może blokować wapń!`;
     issuesCount++;
   } else if (gh === 0) {
-    ghStatus = 'warn'; ghBadge = 'Brak minerałów (GH = 0)'; ghText = `Woda całkowicie miękka / RO bez mineralizacji. Konieczne użycie mineralizatora GH+ dla zdrowia roślin i ryb.`;
+    ghStatus = 'warn'; ghBadge = 'Brak minerałów (GH = 0)'; ghText = `Woda miękka / RO bez mineralizacji. Użyj mineralizatora GH+.`;
     issuesCount++;
   } else if (khPct < 30) {
-    ghStatus = 'warn'; ghBadge = 'Niskie KH względem GH'; ghText = `Niskie KH (${kh} °dH przy GH ${gh} °dH, tj. ${khPct}%). Bufor pH jest słaby, uważaj na wahania odczynu przy dozowaniu CO₂.`;
+    ghStatus = 'warn'; ghBadge = 'Niskie KH względem GH'; ghText = `Niskie KH (${kh} °dH przy GH ${gh} °dH). Słaby bufor pH, uważaj na wahania CO₂.`;
     issuesCount++;
   }
   panels.push({ title: 'Twardość i Stosunek KH do GH', badge: ghBadge, status: ghStatus, desc: ghText });
@@ -785,43 +1760,155 @@ function resetDefaults() {
   Object.keys(defs).forEach(k => sync(k, defs[k], null));
 }
 
-// WYKRESY
+/* =========================================================
+   LOGIKA NOWEJ ZAKŁADKI WYKRESÓW I ANALIZY HISTORII
+   ========================================================= */
+
+function getFilteredChronologicalData() {
+  const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
+  const chrono = hist.slice().reverse();
+  if (chartRangeLimit > 0 && chrono.length > chartRangeLimit) {
+    return chrono.slice(chrono.length - chartRangeLimit);
+  }
+  return chrono;
+}
+
+function setChartViewMode(mode) {
+  chartViewMode = mode;
+  document.getElementById('view_single').classList.toggle('active', mode === 'single');
+  document.getElementById('view_multi').classList.toggle('active', mode === 'multi');
+  refreshChartTab();
+}
+
+function setChartRange(limit) {
+  chartRangeLimit = limit;
+  document.getElementById('rng_5').classList.toggle('active', limit === 5);
+  document.getElementById('rng_10').classList.toggle('active', limit === 10);
+  document.getElementById('rng_0').classList.toggle('active', limit === 0);
+  selectedPointIdx = null;
+  refreshChartTab();
+}
+
+function selectParamOnChart(key) {
+  if (chartViewMode === 'single') {
+    focusedKey = key;
+  } else {
+    const s = SERIES_CONFIG.find(item => item.key === key);
+    if (s) s.active = !s.active;
+  }
+  refreshChartTab();
+}
+
 function renderSeriesToggles() {
   const wrap = document.getElementById('series_toggles');
-  if(!wrap) return;
-  wrap.innerHTML = SERIES_CONFIG.map((s, i) => `
-    <div class="series-chip ${s.active ? 'active' : ''}" onclick="toggleSeries(${i})">
-      <span class="dot" style="background:${s.color}; color:${s.color};"></span>
-      <span>${s.label}</span>
+  if (!wrap) return;
+  wrap.innerHTML = SERIES_CONFIG.map(s => {
+    const isAct = chartViewMode === 'single' ? (s.key === focusedKey) : s.active;
+    return `
+      <div class="param-pill ${isAct ? 'active' : ''}" onclick="selectParamOnChart('${s.key}')">
+        <span class="dot" style="background:${s.color}; color:${s.color};"></span>
+        <span>${s.label}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderFocusStats(data) {
+  const bar = document.getElementById('focus_stats_bar');
+  const subtitle = document.getElementById('chart_subtitle');
+  const goalLegend = document.getElementById('goal_zone_legend');
+  if (!bar) return;
+
+  if (chartViewMode === 'multi') {
+    bar.style.display = 'none';
+    if (goalLegend) goalLegend.style.visibility = 'hidden';
+    if (subtitle) subtitle.textContent = 'Porównanie względne (0–100% skali każdego parametru)';
+    return;
+  }
+
+  bar.style.display = 'grid';
+  const cfg = SERIES_CONFIG.find(s => s.key === focusedKey) || SERIES_CONFIG[0];
+  const g = getGoals();
+  const hasGoal = cfg.goalKeys && g[cfg.goalKeys[0]] !== undefined;
+  if (goalLegend) goalLegend.style.visibility = hasGoal ? 'visible' : 'hidden';
+
+  if (subtitle) {
+    const goalStr = hasGoal ? ` • Cel: ${g[cfg.goalKeys[0]]}–${g[cfg.goalKeys[1]]} ${cfg.unit}` : '';
+    subtitle.innerHTML = `<strong style="color:${cfg.color}">${cfg.fullName}</strong>${goalStr}`;
+  }
+
+  const vals = data.map(d => parseFloat(d[cfg.key])).filter(v => Number.isFinite(v));
+  if (vals.length === 0) {
+    bar.innerHTML = `
+      <div class="stat-mini-card"><div class="stat-mini-label">Ostatni</div><div class="stat-mini-val">—</div></div>
+      <div class="stat-mini-card"><div class="stat-mini-label">Zmiana</div><div class="stat-mini-val">—</div></div>
+      <div class="stat-mini-card"><div class="stat-mini-label">Średnia</div><div class="stat-mini-val">—</div></div>
+      <div class="stat-mini-card"><div class="stat-mini-label">Min / Max</div><div class="stat-mini-val">—</div></div>
+    `;
+    return;
+  }
+
+  const lastVal = vals[vals.length - 1];
+  const prevVal = vals.length >= 2 ? vals[vals.length - 2] : null;
+  const diff = prevVal !== null ? (lastVal - prevVal) : 0;
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+
+  let diffHtml = '<span class="delta-flat">▬ 0.0</span>';
+  if (prevVal !== null) {
+    if (diff > 0.001) diffHtml = `<span class="delta-up">▲ +${diff.toFixed(cfg.decimals)}</span>`;
+    else if (diff < -0.001) diffHtml = `<span class="delta-down">▼ ${diff.toFixed(cfg.decimals)}</span>`;
+  }
+
+  bar.innerHTML = `
+    <div class="stat-mini-card">
+      <div class="stat-mini-label">Ostatni</div>
+      <div class="stat-mini-val" style="color:${cfg.color}">${lastVal.toFixed(cfg.decimals)} <small style="font-size:0.65rem;color:var(--text-muted)">${cfg.unit}</small></div>
     </div>
-  `).join('');
+    <div class="stat-mini-card">
+      <div class="stat-mini-label">Vs poprzedni</div>
+      <div class="stat-mini-val">${diffHtml}</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-label">Średnia (${vals.length})</div>
+      <div class="stat-mini-val">${avg.toFixed(cfg.decimals)}</div>
+    </div>
+    <div class="stat-mini-card">
+      <div class="stat-mini-label">Min – Max</div>
+      <div class="stat-mini-val" style="font-size:0.8rem">${minV.toFixed(cfg.decimals)}–${maxV.toFixed(cfg.decimals)}</div>
+    </div>
+  `;
 }
 
-function toggleSeries(idx) {
-  SERIES_CONFIG[idx].active = !SERIES_CONFIG[idx].active;
-  renderSeriesToggles();
-  drawTrendChart();
-}
+// Funkcja rysująca gładką krzywą przez punkty (Catmull-Rom / Cubic Bezier)
+function traceSmoothLine(ctx, pts) {
+  if (pts.length === 0) return;
+  ctx.moveTo(pts[0].x, pts[0].y);
+  if (pts.length === 1) return;
+  if (pts.length === 2) {
+    ctx.lineTo(pts[1].x, pts[1].y);
+    return;
+  }
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i === 0 ? i : i - 1];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
 
-function toggleAllSeries(allActive) {
-  SERIES_CONFIG.forEach(s => {
-    if (allActive) s.active = true;
-    else s.active = ['no3', 'po4', 'fe'].includes(s.key);
-  });
-  renderSeriesToggles();
-  drawTrendChart();
-}
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    let cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    let cp2y = p2.y - (p3.y - p1.y) / 6;
 
-function setChartMode(mode) {
-  chartMode = mode;
-  document.getElementById('mode_raw').classList.toggle('active-mode', mode === 'raw');
-  document.getElementById('mode_norm').classList.toggle('active-mode', mode === 'norm');
-  drawTrendChart();
-}
+    // Zabezpieczenie przed "przestrzeleniem" ekstremów lokalnych
+    const minY = Math.min(p1.y, p2.y);
+    const maxY = Math.max(p1.y, p2.y);
+    cp1y = Math.max(minY, Math.min(maxY, cp1y));
+    cp2y = Math.max(minY, Math.min(maxY, cp2y));
 
-function getChronologicalData() {
-  const hist = JSON.parse(localStorage.getItem('aqualab_history') || '[]');
-  return hist.slice().reverse();
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+  }
 }
 
 function drawTrendChart() {
@@ -829,95 +1916,315 @@ function drawTrendChart() {
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  const width = rect.width || 520;
-  const height = 300;
+  const width = rect.width || 540;
+  const height = 290;
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, width, height);
 
-  const data = getChronologicalData();
-  const activeSeries = SERIES_CONFIG.filter(s => s.active);
-  renderTrendDeltas(data);
+  const data = getFilteredChronologicalData();
+  if (selectedPointIdx === null || selectedPointIdx >= data.length) {
+    selectedPointIdx = data.length > 0 ? data.length - 1 : null;
+  }
+
+  renderFocusStats(data);
+
+  const activeSeries = chartViewMode === 'single'
+    ? [SERIES_CONFIG.find(s => s.key === focusedKey) || SERIES_CONFIG[0]]
+    : SERIES_CONFIG.filter(s => s.active);
 
   if (data.length === 0 || activeSeries.length === 0) {
-    ctx.fillStyle = '#94a3b8'; ctx.font = '600 13px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(data.length === 0 ? 'Brak zapisanych pomiarów w historii.' : 'Wybierz co najmniej jeden parametr powyżej.', width / 2, height / 2);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 13px Plus Jakarta Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(
+      data.length === 0
+        ? 'Brak zapisanych pomiarów. Zapisz wynik lub kliknij „Wgraj 6 pomiarów demo”.'
+        : 'Wybierz powyżej co najmniej jeden parametr do wyświetlenia.',
+      width / 2, height / 2
+    );
+    cachedChartPoints = [];
     return;
   }
 
-  const padL = 40, padR = 18, padT = 22, padB = 34;
+  const padL = 44, padR = 20, padT = 24, padB = 34;
   const plotW = width - padL - padR;
   const plotH = height - padT - padB;
+
+  const g = getGoals();
+  let minY = 0;
   let maxY = 100;
 
-  if (chartMode === 'raw') {
-    let vals = [];
-    data.forEach(d => activeSeries.forEach(s => { const v = parseFloat(d[s.key]); if (!isNaN(v)) vals.push(v); }));
-    maxY = vals.length > 0 ? Math.max(...vals) * 1.15 : 10;
-    if (maxY === 0) maxY = 1;
+  if (chartViewMode === 'single') {
+    const s = activeSeries[0];
+    let vals = data.map(d => parseFloat(d[s.key])).filter(v => Number.isFinite(v));
+    if (s.goalKeys && g[s.goalKeys[0]] !== undefined) {
+      vals.push(g[s.goalKeys[0]], g[s.goalKeys[1]]);
+    }
+    if (s.key === 'ph') {
+      const minVal = vals.length ? Math.min(...vals) : 6.0;
+      const maxVal = vals.length ? Math.max(...vals) : 7.5;
+      minY = Math.max(4.5, Math.floor((minVal - 0.3) * 2) / 2);
+      maxY = Math.min(9.0, Math.ceil((maxVal + 0.3) * 2) / 2);
+      if (maxY <= minY) maxY = minY + 1;
+    } else {
+      minY = 0;
+      const maxVal = vals.length ? Math.max(...vals) : 10;
+      maxY = maxVal > 0 ? maxVal * 1.22 : 10;
+    }
   }
 
-  // Poziome linie siatki i wartości osi Y
-  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
-  ctx.fillStyle = '#64748b'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const y = padT + (plotH / 4) * i;
-    const val = maxY - (maxY / 4) * i;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(width - padR, y); ctx.stroke();
-    ctx.fillText(chartMode === 'norm' ? Math.round(val) + '%' : val.toFixed(1), padL - 6, y + 3);
-  }
-
+  const valToY = (v) => padT + plotH - ((v - minY) / (maxY - minY)) * plotH;
   const getX = (i) => data.length === 1 ? padL + plotW / 2 : padL + (i / (data.length - 1)) * plotW;
+
+  // 1. Zielone pasmo docelowe (Target Zone) w trybie pojedynczego parametru
+  if (chartViewMode === 'single') {
+    const s = activeSeries[0];
+    if (s.goalKeys && g[s.goalKeys[0]] !== undefined) {
+      const gMin = g[s.goalKeys[0]];
+      const gMax = g[s.goalKeys[1]];
+      const yTop = Math.max(padT, Math.min(padT + plotH, valToY(gMax)));
+      const yBot = Math.max(padT, Math.min(padT + plotH, valToY(gMin)));
+
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.10)';
+      ctx.fillRect(padL, yTop, plotW, Math.max(0, yBot - yTop));
+
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(padL, yTop); ctx.lineTo(width - padR, yTop);
+      ctx.moveTo(padL, yBot); ctx.lineTo(width - padR, yBot);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.75)';
+      ctx.font = '600 9px JetBrains Mono, monospace';
+      ctx.textAlign = 'right';
+      if (yTop > padT + 8) ctx.fillText(`MAX ${gMax}`, width - padR - 4, yTop - 3);
+      if (yBot < padT + plotH - 4) ctx.fillText(`MIN ${gMin}`, width - padR - 4, yBot + 10);
+    }
+  }
+
+  // 2. Poziome linie siatki i oś Y
+  ctx.strokeStyle = 'rgba(51, 65, 85, 0.35)';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.textAlign = 'right';
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const y = padT + (plotH / steps) * i;
+    const val = maxY - ((maxY - minY) / steps) * i;
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(width - padR, y);
+    ctx.stroke();
+
+    let label = '';
+    if (chartViewMode === 'multi') {
+      label = Math.round(val) + '%';
+    } else {
+      const dec = activeSeries[0].decimals;
+      label = val.toFixed(dec === 2 && maxY - minY < 4 ? 2 : 1);
+    }
+    ctx.fillText(label, padL - 7, y + 3);
+  }
+
   cachedChartPoints = data.map((d, i) => ({ x: getX(i), idx: i, item: d }));
 
-  // Pionowy wskaźnik wybranego pomiaru
+  // 3. Pionowy celownik na wybranym pomiarze
   if (selectedPointIdx !== null && cachedChartPoints[selectedPointIdx]) {
     const sx = cachedChartPoints[selectedPointIdx].x;
-    ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-    ctx.beginPath(); ctx.moveTo(sx, padT); ctx.lineTo(sx, padT + plotH); ctx.stroke();
+    ctx.strokeStyle = 'rgba(248, 250, 252, 0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(sx, padT);
+    ctx.lineTo(sx, padT + plotH);
+    ctx.stroke();
     ctx.setLineDash([]);
   }
 
-  // Daty na osi X
-  ctx.fillStyle = '#94a3b8'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  // 4. Daty na osi X
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
   data.forEach((d, i) => {
-    if (data.length <= 6 || i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 5) === 0) {
+    const isSelected = i === selectedPointIdx;
+    if (data.length <= 7 || i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 5) === 0 || isSelected) {
       const shortDate = (d.date || '').split(' ')[0];
-      ctx.fillText(shortDate, getX(i), height - 10);
+      ctx.fillStyle = isSelected ? '#10b981' : '#64748b';
+      ctx.font = isSelected ? '700 10px JetBrains Mono, monospace' : '500 10px JetBrains Mono, monospace';
+      ctx.fillText(shortDate, getX(i), height - 9);
     }
   });
 
-  // Linie oraz punkty pomiarowe
+  // 5. Krzywe, gradient pod wykresem, punkty i etykiety
   activeSeries.forEach(s => {
     let seriesMax = s.maxRef;
-    if (chartMode === 'norm') {
-      const sVals = data.map(d => parseFloat(d[s.key]) || 0);
-      seriesMax = Math.max(...sVals, 0.01) * 1.1;
+    if (chartViewMode === 'multi') {
+      const sVals = data.map(d => parseFloat(d[s.key])).filter(v => Number.isFinite(v));
+      seriesMax = Math.max(s.maxRef, ...sVals, 0.01);
     }
-    const points = data.map((d, i) => {
-      const rawVal = parseFloat(d[s.key]) || 0;
-      const plotVal = chartMode === 'norm' ? (rawVal / seriesMax) * 100 : rawVal;
+
+    const points = [];
+    data.forEach((d, i) => {
+      const rawVal = parseFloat(d[s.key]);
+      if (!Number.isFinite(rawVal)) return;
+      const plotVal = chartViewMode === 'multi' ? (rawVal / seriesMax) * 100 : rawVal;
       const x = getX(i);
-      const y = padT + plotH - (plotVal / maxY) * plotH;
-      return { x, y, rawVal };
+      const y = valToY(plotVal);
+      points.push({ x, y, rawVal, origIdx: i });
     });
 
-    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5; ctx.beginPath();
-    points.forEach((p, i) => { if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+    if (points.length === 0) return;
+
+    // Wypełnienie gradientowe pod krzywą w trybie pojedynczym
+    if (chartViewMode === 'single' && points.length > 1) {
+      const grad = ctx.createLinearGradient(0, padT, 0, padT + plotH);
+      grad.addColorStop(0, s.color + '44');
+      grad.addColorStop(1, s.color + '00');
+      ctx.beginPath();
+      traceSmoothLine(ctx, points);
+      ctx.lineTo(points[points.length - 1].x, padT + plotH);
+      ctx.lineTo(points[0].x, padT + plotH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    // Główna gładka linia
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = chartViewMode === 'single' ? 3 : 2.2;
+    ctx.beginPath();
+    traceSmoothLine(ctx, points);
     ctx.stroke();
 
-    points.forEach((p, i) => {
+    // Punkty pomiarowe + bezpośrednie wartości w trybie pojedynczym
+    points.forEach(p => {
+      const isSel = selectedPointIdx === p.origIdx;
       ctx.fillStyle = s.color;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, selectedPointIdx === i ? 5.5 : 3.5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, isSel ? 6.5 : 4, 0, Math.PI * 2);
       ctx.fill();
-      if (selectedPointIdx === i) {
-        ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5; ctx.stroke();
+
+      ctx.strokeStyle = isSel ? '#ffffff' : '#030712';
+      ctx.lineWidth = isSel ? 2.2 : 1.5;
+      ctx.stroke();
+
+      // Bezpośrednie etykiety wartości nad punktami (gdy tryb single i czytelna liczba punktów)
+      if (chartViewMode === 'single' && (data.length <= 8 || isSel)) {
+        ctx.fillStyle = isSel ? '#ffffff' : '#cbd5e1';
+        ctx.font = (isSel ? '700 ' : '600 ') + '10px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        const labelY = p.y - 11 < padT + 8 ? p.y + 16 : p.y - 10;
+        ctx.fillText(p.rawVal.toFixed(s.decimals), p.x, labelY);
       }
     });
   });
+}
+
+function stepSelectedPoint(dir) {
+  const data = getFilteredChronologicalData();
+  if (!data.length) return;
+  if (selectedPointIdx === null) selectedPointIdx = data.length - 1;
+  selectedPointIdx = Math.max(0, Math.min(data.length - 1, selectedPointIdx + dir));
+  refreshChartTab();
+}
+
+function selectTimelinePoint(idx) {
+  selectedPointIdx = idx;
+  refreshChartTab();
+}
+
+function renderInspectorAndTimeline() {
+  const data = getFilteredChronologicalData();
+  const insp = document.getElementById('inspector_card');
+  const tl = document.getElementById('chart_timeline_list');
+  if (!insp || !tl) return;
+
+  if (data.length === 0) {
+    insp.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:8px;">Brak pomiarów do inspekcji.</div>`;
+    tl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:12px;">Zapisz swój pierwszy pomiar w Kalkulatorze lub załaduj dane demo.</div>`;
+    return;
+  }
+
+  if (selectedPointIdx === null || selectedPointIdx >= data.length) {
+    selectedPointIdx = data.length - 1;
+  }
+
+  const cur = data[selectedPointIdx];
+  const prev = selectedPointIdx > 0 ? data[selectedPointIdx - 1] : null;
+
+  const cellsHtml = SERIES_CONFIG.map(s => {
+    const val = parseFloat(cur[s.key]);
+    const valStr = Number.isFinite(val) ? val.toFixed(s.decimals) : '∞';
+    let diffStr = '<span class="delta-flat">—</span>';
+
+    if (prev && Number.isFinite(val)) {
+      const pVal = parseFloat(prev[s.key]);
+      if (Number.isFinite(pVal)) {
+        const d = val - pVal;
+        if (d > 0.001) diffStr = `<span class="delta-up">▲ +${d.toFixed(s.decimals)}</span>`;
+        else if (d < -0.001) diffStr = `<span class="delta-down">▼ ${d.toFixed(s.decimals)}</span>`;
+        else diffStr = `<span class="delta-flat">▬ 0</span>`;
+      }
+    }
+
+    const isFocused = chartViewMode === 'single' && s.key === focusedKey;
+    return `
+      <div class="insp-cell ${isFocused ? 'focused' : ''}" onclick="selectParamOnChart('${s.key}')">
+        <div class="insp-name" style="color:${s.color}">${s.label} ${s.unit ? `<small>(${s.unit})</small>` : ''}</div>
+        <div class="insp-val">${valStr}</div>
+        <div class="insp-diff">${diffStr}</div>
+      </div>
+    `;
+  }).join('');
+
+  insp.innerHTML = `
+    <div class="inspector-header">
+      <button class="inspector-nav-btn" onclick="stepSelectedPoint(-1)" ${selectedPointIdx <= 0 ? 'disabled' : ''} title="Starszy pomiar">◀</button>
+      <div class="inspector-date-title">
+        <strong>📅 ${escapeHTML(cur.date)}</strong>
+        <span>Pomiar ${selectedPointIdx + 1} z ${data.length} ${selectedPointIdx === data.length - 1 ? '(Najnowszy)' : ''}</span>
+      </div>
+      <button class="inspector-nav-btn" onclick="stepSelectedPoint(1)" ${selectedPointIdx >= data.length - 1 ? 'disabled' : ''} title="Nowszy pomiar">▶</button>
+    </div>
+    <div class="inspector-params-grid">
+      ${cellsHtml}
+    </div>
+    ${cur.note ? `<div class="inspector-note">📝 <strong>Notatka:</strong> ${escapeHTML(cur.note)}</div>` : ''}
+  `;
+
+  // Renderowanie osi czasu (od najnowszego do najstarszego w wybranym oknie)
+  const reversedIndices = data.map((_, i) => i).reverse();
+  tl.innerHTML = reversedIndices.map(i => {
+    const item = data[i];
+    const isSel = i === selectedPointIdx;
+    return `
+      <div class="timeline-row ${isSel ? 'selected' : ''}" onclick="selectTimelinePoint(${i})">
+        <div class="tl-left">
+          <span class="tl-date">📅 ${escapeHTML(item.date)}</span>
+          <span class="tl-note">${item.note ? '📝 ' + escapeHTML(item.note) : 'Brak notatki'}</span>
+        </div>
+        <div class="tl-pills">
+          <span class="tl-pill">NO₃ <strong style="color:#38bdf8">${item.no3}</strong></span>
+          <span class="tl-pill">PO₄ <strong style="color:#a855f7">${item.po4}</strong></span>
+          <span class="tl-pill">Fe <strong style="color:#f97316">${item.fe}</strong></span>
+          <span class="tl-pill">CO₂ <strong style="color:#10b981">${item.co2}</strong></span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function refreshChartTab() {
+  renderSeriesToggles();
+  drawTrendChart();
+  renderInspectorAndTimeline();
 }
 
 function handleChartPointer(e) {
@@ -935,64 +2242,36 @@ function handleChartPointer(e) {
   });
 
   selectedPointIdx = closest.idx;
-  drawTrendChart();
-  const it = closest.item;
-  document.getElementById('chart_tooltip').innerHTML = `
-    <strong>📅 ${escapeHTML(it.date)}</strong> &nbsp;|&nbsp;
-    NO₃: <strong style="color:#38bdf8">${it.no3}</strong> &nbsp;|&nbsp;
-    PO₄: <strong style="color:#a855f7">${it.po4}</strong> &nbsp;|&nbsp;
-    Fe: <strong style="color:#f97316">${it.fe}</strong> &nbsp;|&nbsp;
-    pH: <strong>${it.ph}</strong> &nbsp;|&nbsp;
-    KH/GH: <strong>${it.kh}/${it.gh}</strong> &nbsp;|&nbsp;
-    CO₂: <strong style="color:#10b981">${it.co2}</strong>
-    ${it.note ? `<div style="margin-top:4px; color:#cbd5e1; font-style:italic;">📝 \${escapeHTML(it.note)}</div>` : ''}
-  `;
-}
-
-function renderTrendDeltas(data) {
-  const container = document.getElementById('trend_deltas');
-  if (!container) return;
-  if (data.length < 2) {
-    container.innerHTML = `<div style="grid-column: span 2; color:var(--muted); font-size:0.78rem; padding:6px;">Zapisz co najmniej 2 pomiary, aby zobaczyć bilans zmian.</div>`;
-    return;
-  }
-  const last = data[data.length - 1];
-  const prev = data[data.length - 2];
-  container.innerHTML = SERIES_CONFIG.map(s => {
-    const vLast = parseFloat(last[s.key]) || 0;
-    const vPrev = parseFloat(prev[s.key]) || 0;
-    const diff = vLast - vPrev;
-    const decimals = ['po4', 'fe', 'ph'].includes(s.key) ? 2 : 1;
-    let arrow = '▬', cls = 'delta-flat', sign = '';
-    if (diff > 0.001) { arrow = '▲ Wzrost'; cls = 'delta-up'; sign = '+'; }
-    else if (diff < -0.001) { arrow = '▼ Spadek'; cls = 'delta-down'; }
-    return `<div class="trend-box"><div class="trend-name"><span style="width:8px;height:8px;border-radius:50%;background:${s.color};display:inline-block;"></span><span>${s.label}</span></div><div class="trend-delta ${cls}">${arrow} ${sign}${diff.toFixed(decimals)} ${s.unit}</div></div>`;
-  }).join('');
+  refreshChartTab();
 }
 
 function loadDemoHistory() {
   const demo = [
-    { date: '25.10 18:30', no3: 15.0, po4: 1.20, fe: 0.30, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 8.7, note: 'Po korekcie fosforu i mikro' },
-    { date: '22.10 19:00', no3: 14.0, po4: 0.70, fe: 0.15, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 13.9, note: 'Szybkie zużycie PO4 przez Rotalę' },
-    { date: '19.10 18:00', no3: 18.0, po4: 1.10, fe: 0.25, ph: 6.65, kh: 5.0, gh: 8.0, co2: 33.6, redfield: 11.3, note: 'Dzień po podmianie 30%' },
-    { date: '15.10 20:00', no3: 10.0, po4: 0.60, fe: 0.10, ph: 6.75, kh: 4.5, gh: 7.5, co2: 24.0, redfield: 11.5, note: 'Przed podmianą i przycinką' },
-    { date: '12.10 18:15', no3: 15.0, po4: 1.00, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 10.4, note: 'Stabilny wzrost' },
-    { date: '08.10 17:45', no3: 12.0, po4: 0.80, fe: 0.20, ph: 6.75, kh: 5.0, gh: 8.0, co2: 26.7, redfield: 10.4, note: 'Start pomiarów' }
+    { date: '25.10 18:30', no3: 15.0, po4: 1.20, fe: 0.30, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 19.1, note: 'Po korekcie fosforu i mikro' },
+    { date: '22.10 19:00', no3: 14.0, po4: 0.70, fe: 0.15, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 30.6, note: 'Szybkie zużycie PO4 przez Rotalę' },
+    { date: '19.10 18:00', no3: 18.0, po4: 1.10, fe: 0.25, ph: 6.65, kh: 5.0, gh: 8.0, co2: 33.6, redfield: 25.1, note: 'Dzień po podmianie 30%' },
+    { date: '15.10 20:00', no3: 10.0, po4: 0.60, fe: 0.10, ph: 6.75, kh: 4.5, gh: 7.5, co2: 24.0, redfield: 25.5, note: 'Przed podmianą i przycinką' },
+    { date: '12.10 18:15', no3: 15.0, po4: 1.00, fe: 0.25, ph: 6.70, kh: 5.0, gh: 8.0, co2: 29.9, redfield: 23.0, note: 'Stabilny wzrost' },
+    { date: '08.10 17:45', no3: 12.0, po4: 0.80, fe: 0.20, ph: 6.75, kh: 5.0, gh: 8.0, co2: 26.7, redfield: 23.0, note: 'Start pomiarów' }
   ];
   localStorage.setItem('aqualab_history', JSON.stringify(demo));
-  selectedPointIdx = demo.length - 1;
+  selectedPointIdx = null;
   renderHistory();
-  drawTrendChart();
+  refreshChartTab();
 }
 
-// EKSPORT / IMPORT
 function exportBackup() {
-  const hist = localStorage.getItem('aqualab_history') || '[]';
-  const blob = new Blob([hist], { type: 'application/json' });
+  const backupObj = {
+    version: 4,
+    history: JSON.parse(localStorage.getItem('aqualab_history') || '[]'),
+    goals: getGoals(),
+    dosing: JSON.parse(localStorage.getItem('aqualab_dosing') || '{}')
+  };
+  const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `AquaLab_Kopia_Zapasowa.json`;
+  a.download = `AquaLab_Backup.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1005,13 +2284,22 @@ function importBackup(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) throw new Error();
-      if (confirm(`Zaimportować ${data.length} pomiarów? (Zastąpi obecną historię)`)) {
-        localStorage.setItem('aqualab_history', JSON.stringify(data));
+      const parsed = JSON.parse(e.target.result);
+      const histData = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.history) ? parsed.history : null);
+      if (!histData) throw new Error();
+
+      if (confirm(`Zaimportować ${histData.length} pomiarów oraz konfigurację?`)) {
+        localStorage.setItem('aqualab_history', JSON.stringify(histData));
+        if (!Array.isArray(parsed)) {
+          if (parsed.goals) localStorage.setItem('aqualab_goals', JSON.stringify(parsed.goals));
+          if (parsed.dosing) localStorage.setItem('aqualab_dosing', JSON.stringify(parsed.dosing));
+        }
         selectedPointIdx = null;
+        loadGoalsToInputs();
+        loadDosingConfig();
+        calculateAll();
         renderHistory();
-        drawTrendChart();
+        refreshChartTab();
         alert('Zaimportowano pomyślnie!');
       }
     } catch (err) { alert('Błąd pliku kopii zapasowej.'); }
@@ -1029,9 +2317,9 @@ window.addEventListener('resize', () => {
 window.onload = () => {
   loadGoalsToInputs();
   loadDosingConfig();
-  renderSeriesToggles();
   calculateAll();
   renderHistory();
+  refreshChartTab();
   const canvas = document.getElementById('trendChart');
   if (canvas) {
     canvas.addEventListener('pointerdown', handleChartPointer);
